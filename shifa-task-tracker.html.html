@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Shifa Medical Group — Task Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══ EXACT DESIGN TOKENS FROM preview.html ══ */
+:root{
+  --bg:#060d18;--bg2:#081020;--s:#0d1a2e;--s2:#112038;--s3:#162640;
+  --b:rgba(80,160,220,.12);--b2:rgba(80,160,220,.06);--b3:rgba(80,160,220,.28);
+  --a:#4fa3d4;--a2:#7dc2ec;--a3:#2876a8;
+  --g:#c9a84c;--g2:#e8c97a;
+  --t:#ddeaf8;--t2:#7aa8cc;--t3:#3a6488;
+  --red:#d4756a;--red2:rgba(212,117,106,.15);
+  --green:#6ac47a;--green2:rgba(106,196,122,.15);
+  --ora:#d4a06a;--ora2:rgba(212,160,106,.15);
+  --r:10px;--rl:14px;
+}
+body.light{
+  --bg:#f0f5fa;--bg2:#e6eef5;--s:#fff;--s2:#f0f6fb;--s3:#e4eef7;
+  --b:rgba(0,0,0,.09);--b2:rgba(0,0,0,.04);--b3:rgba(0,0,0,.16);
+  --a:#1a6fa0;--a2:#0d4f7a;--a3:#2080b8;
+  --g:#8a6820;--g2:#6a5010;
+  --t:#0a1a2a;--t2:#2a5070;--t3:#5a80a0;
+  --red:#b84040;--red2:rgba(184,64,64,.1);
+  --green:#2a8a40;--green2:rgba(42,138,64,.1);
+  --ora:#9a6020;--ora2:rgba(154,96,32,.1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:14px;line-height:1.6;display:flex;flex-direction:column}
+.hidden{display:none!important}
+
+/* ══ LOGIN ══ */
+#login-screen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--s);border:.5px solid var(--b3);border-radius:20px;padding:36px 32px;max-width:460px;width:100%;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--t)}
+.login-logo h1 span{color:var(--g2)}
+.login-logo p{font-size:12px;color:var(--t3);margin-top:4px;letter-spacing:.04em}
+.login-logo .module-badge{display:inline-block;margin-top:8px;background:rgba(79,163,212,.12);border:.5px solid var(--b3);border-radius:12px;padding:3px 12px;font-size:10px;color:var(--a2);letter-spacing:.06em;text-transform:uppercase}
+
+/* ══ HEADER ══ */
+#app{display:none;flex-direction:column;height:100%}
+.hdr{display:flex;align-items:center;padding:8px 16px;border-bottom:.5px solid var(--b);flex-shrink:0;gap:10px;background:var(--bg2)}
+.hdr-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--t);white-space:nowrap}
+.hdr-title span{color:var(--g2)}
+.hdr-sub{font-size:9px;color:var(--t3);letter-spacing:.05em;text-transform:uppercase;line-height:1.2}
+.hdr-mid{flex:1;text-align:center;overflow:hidden;min-width:0}
+#sync-status{font-size:9px;color:var(--t3);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+#clock{font-size:13px;font-weight:500;color:var(--t);font-variant-numeric:tabular-nums}
+#date-lbl{font-size:9px;color:var(--t3);text-align:right}
+.icon-btn{background:none;border:.5px solid var(--b);border-radius:6px;padding:7px 9px;color:var(--t3);font-size:11px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.icon-btn:hover{border-color:var(--a);color:var(--a)}
+
+/* ══ QUICK LINKS ══ */
+.quick-links{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;border-bottom:.5px solid var(--b);background:var(--bg2);flex-shrink:0}
+.quick-links::-webkit-scrollbar{display:none}
+
+/* ══ NAV ══ */
+.nav{display:flex;overflow-x:auto;border-bottom:.5px solid var(--b);flex-shrink:0;background:var(--bg);scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nb{background:none;border:none;color:var(--t3);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;padding:9px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .2s,border-color .2s}
+.nb.active{color:var(--a);border-bottom-color:var(--a)}
+.nb:hover{color:var(--t2)}
+
+/* ══ PANELS ══ */
+.panels{flex:1;overflow:hidden;position:relative}
+.panel{display:none;height:100%;overflow-y:auto;padding:14px 14px 100px}
+.panel.active{display:block}
+.panel::-webkit-scrollbar{width:3px}.panel::-webkit-scrollbar-thumb{background:var(--b3)}
+
+/* ══ CARDS ══ */
+.card{background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);padding:14px;margin-bottom:10px;transition:border-color .2s}
+.card:hover{border-color:var(--b3)}
+
+/* ══ SECTION HEADERS ══ */
+.sh{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;margin:16px 0 8px;display:flex;align-items:center;gap:7px;color:var(--t)}
+.sh::before{content:'';display:block;width:2.5px;height:13px;background:var(--a);border-radius:2px;flex-shrink:0}
+.sh.gold::before{background:var(--g)}.sh.red::before{background:var(--red)}.sh.green::before{background:var(--green)}.sh.ora::before{background:var(--ora)}
+
+/* ══ KPI ══ */
+.kpi-hero{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.kpi-box{background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);padding:14px 10px;text-align:center;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s}
+.kpi-box:hover{border-color:var(--b3);transform:translateY(-1px)}
+.kpi-box::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--kpi-accent,var(--a)),transparent)}
+.kpi-box.open-t{--kpi-accent:var(--a)}.kpi-box.inprog-t{--kpi-accent:var(--green)}.kpi-box.overdue-t{--kpi-accent:var(--red)}.kpi-box.urgent-t{--kpi-accent:#ff6b6b}.kpi-box.done-t{--kpi-accent:var(--g)}.kpi-box.today-t{--kpi-accent:var(--ora)}
+.kpi-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-lbl{font-size:9px;color:var(--t3);letter-spacing:.05em;text-transform:uppercase}
+
+/* ══ STATUS BADGES ══ */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:600;letter-spacing:.04em;border:.5px solid;white-space:nowrap}
+.badge-not-started{background:rgba(90,100,120,.15);border-color:rgba(90,100,120,.3);color:#8090a8}
+.badge-in-progress{background:var(--green2);border-color:rgba(106,196,122,.35);color:var(--green)}
+.badge-waiting{background:var(--ora2);border-color:rgba(212,160,106,.35);color:var(--ora)}
+.badge-blocked{background:var(--red2);border-color:rgba(212,117,106,.35);color:var(--red)}
+.badge-review{background:rgba(79,163,212,.12);border-color:rgba(79,163,212,.35);color:var(--a2)}
+.badge-completed{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.35);color:var(--g2)}
+.badge-cancelled{background:rgba(90,100,120,.1);border-color:rgba(90,100,120,.2);color:var(--t3);text-decoration:line-through}
+
+/* ══ PRIORITY BADGES ══ */
+.pri-low{color:#7090b0;font-size:10px;font-weight:600}
+.pri-medium{color:var(--ora);font-size:10px;font-weight:600}
+.pri-high{color:var(--red);font-size:10px;font-weight:600}
+.pri-urgent{color:#ff4444;font-size:10px;font-weight:700;animation:pulse-urgent 1.5s ease-in-out infinite}
+@keyframes pulse-urgent{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ══ PROGRESS BAR ══ */
+.prog-wrap{background:var(--s2);border-radius:3px;height:5px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* ══ FORMS ══ */
+.field{margin-bottom:10px}
+.field label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:10px 11px;color:var(--t);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--a)}
+textarea{resize:vertical;min-height:80px}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+
+/* ══ BUTTONS ══ */
+.btn{background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:10px 14px;color:var(--t2);font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.btn:hover{background:var(--s3);border-color:var(--b3);color:var(--t)}
+.btn-a{background:rgba(79,163,212,.14);border-color:rgba(79,163,212,.35);color:var(--a2)}
+.btn-a:hover{background:rgba(79,163,212,.24)}
+.btn-g{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.3);color:var(--g2)}
+.btn-g:hover{background:rgba(201,168,76,.2)}
+.btn-gr{background:rgba(106,196,122,.12);border-color:rgba(106,196,122,.3);color:var(--green)}
+.btn-gr:hover{background:rgba(106,196,122,.2)}
+.btn-r{background:rgba(212,117,106,.12);border-color:rgba(212,117,106,.3);color:#e8a49a}
+.btn-r:hover{background:rgba(212,117,106,.2)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-full{width:100%;text-align:center}
+
+/* ══ LAYOUTS ══ */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ══ TABLES ══ */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);border-bottom:.5px solid var(--b);white-space:nowrap}
+td{padding:10px 10px;border-bottom:.5px solid var(--b2);color:var(--t2);vertical-align:middle}
+tr:hover td{background:rgba(80,160,220,.04)}
+.task-title-cell{font-weight:600;color:var(--t);cursor:pointer;max-width:240px}
+.task-title-cell:hover{color:var(--a2);text-decoration:underline}
+
+/* ══ FILTER BAR ══ */
+.filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:8px 12px}
+.filter-bar select{background:var(--s2);border:.5px solid var(--b);border-radius:6px;padding:5px 8px;color:var(--t);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;width:auto}
+.filter-bar .flbl{font-size:10px;color:var(--t3);white-space:nowrap}
+
+/* ══ TASK DETAIL SLIDE-IN PANEL ══ */
+#detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:none;backdrop-filter:blur(2px)}
+#detail-overlay.open{display:block}
+#detail-panel{
+  position:fixed;right:0;top:0;bottom:0;width:min(520px,100vw);
+  background:var(--bg2);border-left:.5px solid var(--b3);
+  z-index:1001;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#detail-panel.open{transform:translateX(0)}
+.detail-hdr{padding:16px 18px;border-bottom:.5px solid var(--b);flex-shrink:0;display:flex;align-items:flex-start;gap:10px}
+.detail-hdr-info{flex:1;min-width:0}
+.detail-hdr-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--t);line-height:1.3;margin-bottom:6px}
+.detail-hdr-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.detail-close{background:none;border:.5px solid var(--b);border-radius:6px;padding:6px 10px;color:var(--t3);font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
+.detail-close:hover{border-color:var(--red);color:var(--red)}
+.detail-body{flex:1;overflow-y:auto;padding:16px 18px}
+.detail-body::-webkit-scrollbar{width:2px}.detail-body::-webkit-scrollbar-thumb{background:var(--b3)}
+
+/* ══ UPDATE FORM IN DETAIL ══ */
+.update-form{background:var(--s);border:.5px solid var(--b3);border-radius:var(--rl);padding:14px;margin-bottom:14px}
+.update-form h4{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;color:var(--t);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ══ PROGRESS SLIDER ══ */
+.prog-slider{-webkit-appearance:none;height:4px;border-radius:2px;background:var(--s2);border:.5px solid var(--b);padding:0;cursor:pointer}
+.prog-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a);cursor:pointer;border:2px solid var(--bg)}
+.prog-val-display{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--a);text-align:center;margin:6px 0}
+
+/* ══ ACTIVITY FEED ══ */
+.activity-item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.act-body{flex:1;min-width:0}
+.act-title{font-size:12px;font-weight:500;color:var(--t);line-height:1.4}
+.act-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.act-note{font-size:11px;color:var(--t2);margin-top:4px;font-style:italic;padding:6px 10px;background:var(--s2);border-radius:6px;border-left:2px solid var(--b3)}
+
+/* ══ HISTORY TIMELINE ══ */
+.timeline{padding-left:14px;border-left:.5px solid var(--b)}
+.tl-item{padding:10px 0 10px 16px;position:relative;margin-bottom:0}
+.tl-item::before{content:'';position:absolute;left:-5px;top:14px;width:9px;height:9px;border-radius:50%;background:var(--s);border:1.5px solid var(--a);flex-shrink:0}
+.tl-time{font-size:10px;color:var(--t3);margin-bottom:3px}
+.tl-who{font-size:11px;font-weight:600;color:var(--t2)}
+.tl-change{display:flex;gap:6px;align-items:center;margin:3px 0;flex-wrap:wrap}
+.tl-old{font-size:10px;color:var(--t3);text-decoration:line-through}
+.tl-new{font-size:10px;color:var(--a2);font-weight:600}
+.tl-note{font-size:11px;color:var(--t2);font-style:italic;margin-top:4px;padding:5px 8px;background:var(--s2);border-radius:5px}
+
+/* ══ SETUP PANEL ══ */
+.setup-step{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--a3);border-radius:50%;font-size:10px;font-weight:700;color:#fff;margin-right:8px;flex-shrink:0}
+.step-title{font-size:13px;font-weight:600;color:var(--t);display:flex;align-items:center;margin-bottom:8px}
+.step-desc{font-size:11px;color:var(--t2);line-height:1.8;padding-left:30px}
+.step-desc code{background:var(--s2);border:.5px solid var(--b);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:10px;color:var(--a2)}
+pre.code-block{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:12px;font-size:10px;color:var(--a2);overflow-x:auto;white-space:pre;line-height:1.7;margin-top:8px;font-family:monospace}
+.copy-btn{background:var(--s2);border:.5px solid var(--b);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--t3);cursor:pointer;transition:all .2s;margin-left:8px}
+.copy-btn:hover{border-color:var(--a);color:var(--a)}
+
+/* ══ EMPTY STATE ══ */
+.empty-state{text-align:center;padding:50px 20px;color:var(--t3)}
+.empty-state .icon{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-state p{font-size:13px;margin-bottom:14px}
+
+/* ══ TOAST ══ */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s3);border:.5px solid var(--b3);border-radius:20px;padding:8px 18px;font-size:12px;color:var(--t);z-index:9998;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.muted{font-size:12px;color:var(--t3)}
+
+/* ══ DUE DATE COLORS ══ */
+.due-overdue{color:var(--red);font-weight:600}
+.due-today{color:var(--ora);font-weight:600}
+.due-soon{color:var(--g2)}
+.due-ok{color:var(--t3)}
+
+@media(max-width:900px){.kpi-hero{grid-template-columns:repeat(3,1fr)}.row3{grid-template-columns:1fr}.row2{grid-template-columns:1fr}}
+@media(max-width:540px){.kpi-hero{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>Shifa <span>Medical</span></h1>
+      <p>Sign in to continue</p>
+      <span class="module-badge">📋 Task Tracker</span>
+    </div>
+    <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="Enter your email" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="field"><label>Secret Key</label><input id="login-secret" type="password" placeholder="Enter your secret key" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-a" style="width:100%;padding:12px;font-size:13px" onclick="login()">Sign In</button>
+    <div id="login-error" class="muted" style="margin-top:10px;color:var(--red)"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">Shifa <span>Medical</span></div>
+      <div class="hdr-sub" id="user-name-display">Task Tracker</div>
+    </div>
+    <div class="hdr-mid">
+      <div style="font-size:11px;font-weight:600;color:var(--g2)" id="hdr-center-text">Task Tracker</div>
+      <div id="sync-status">—</div>
+    </div>
+    <div class="hdr-right">
+      <button class="icon-btn" onclick="document.body.classList.toggle('light')">◐</button>
+      <div>
+        <div id="clock">—</div>
+        <div id="date-lbl">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="quick-links">
+    <a class="icon-btn" href="#" onclick="showToast('Opening Revenue Dashboard…');return false">📊 Revenue Dashboard</a>
+    <a class="icon-btn" href="#" onclick="showToast('Leave Tracker coming soon');return false">🗓 Leave Tracker</a>
+    <a class="icon-btn" href="#" onclick="showToast('Employee Tracker coming soon');return false">👥 Employee Tracker</a>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nb active" onclick="switchTab('overview',this)">📊 Overview</button>
+    <button class="nb" onclick="switchTab('mytasks',this)">👤 My Tasks</button>
+    <button class="nb" onclick="switchTab('all',this)">📋 All Tasks</button>
+    <button class="nb" onclick="switchTab('add',this)">➕ Add Task</button>
+    <button class="nb" onclick="switchTab('activity',this)">🕐 Activity</button>
+    <button class="nb" onclick="switchTab('setup',this)">⚙️ Setup</button>
+  </div>
+
+  <div class="panels">
+
+  <!-- ══ OVERVIEW ══ -->
+  <div class="panel active" id="panel-overview">
+    <div class="kpi-hero">
+      <div class="kpi-box open-t" onclick="filterAndSwitch('all','status','In Progress')">
+        <div class="kpi-val" style="color:var(--a2)" id="ov-open">0</div>
+        <div class="kpi-lbl">Open Tasks</div>
+      </div>
+      <div class="kpi-box inprog-t" onclick="filterAndSwitch('all','status','In Progress')">
+        <div class="kpi-val" style="color:var(--green)" id="ov-inprog">0</div>
+        <div class="kpi-lbl">In Progress</div>
+      </div>
+      <div class="kpi-box overdue-t" onclick="filterAndSwitch('all','due','overdue')">
+        <div class="kpi-val" style="color:var(--red)" id="ov-overdue">0</div>
+        <div class="kpi-lbl">Overdue</div>
+      </div>
+      <div class="kpi-box urgent-t" onclick="filterAndSwitch('all','priority','Urgent')">
+        <div class="kpi-val" style="color:#ff6b6b" id="ov-urgent">0</div>
+        <div class="kpi-lbl">Urgent</div>
+      </div>
+      <div class="kpi-box done-t">
+        <div class="kpi-val" style="color:var(--g2)" id="ov-done">0</div>
+        <div class="kpi-lbl">Completed</div>
+      </div>
+      <div class="kpi-box today-t" onclick="filterAndSwitch('all','due','today')">
+        <div class="kpi-val" style="color:var(--ora)" id="ov-today">0</div>
+        <div class="kpi-lbl">Due Today</div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div>
+        <p class="sh red">🔴 Overdue Tasks</p>
+        <div class="card" id="overdue-list"><div class="muted">Loading…</div></div>
+      </div>
+      <div>
+        <p class="sh ora">📅 Due Today / This Week</p>
+        <div class="card" id="dueweek-list"><div class="muted">Loading…</div></div>
+      </div>
+    </div>
+
+    <p class="sh">📊 Tasks by Status</p>
+    <div class="card" id="status-breakdown-chart"><div class="muted">Loading…</div></div>
+
+    <p class="sh gold">By Category</p>
+    <div class="card" id="category-breakdown-chart"><div class="muted">Loading…</div></div>
+  </div>
+
+  <!-- ══ MY TASKS ══ -->
+  <div class="panel" id="panel-mytasks">
+    <p class="sh green">Tasks Assigned to Me</p>
+    <div class="filter-bar">
+      <span class="flbl">Status</span>
+      <select id="my-status-filter" onchange="renderMyTasks()">
+        <option value="">All</option>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Waiting">Waiting</option>
+        <option value="Blocked">Blocked</option>
+        <option value="Review">Review</option>
+        <option value="Completed">Completed</option>
+      </select>
+      <span class="flbl">Priority</span>
+      <select id="my-priority-filter" onchange="renderMyTasks()">
+        <option value="">All</option>
+        <option value="Urgent">Urgent</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+    </div>
+    <div id="my-tasks-list"><div class="muted">Loading…</div></div>
+  </div>
+
+  <!-- ══ ALL TASKS ══ -->
+  <div class="panel" id="panel-all">
+    <div class="filter-bar">
+      <span class="flbl">Status</span>
+      <select id="all-status-filter" onchange="renderAllTasks()">
+        <option value="">All</option>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Waiting">Waiting</option>
+        <option value="Blocked">Blocked</option>
+        <option value="Review">Review</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <span class="flbl">Priority</span>
+      <select id="all-priority-filter" onchange="renderAllTasks()">
+        <option value="">All</option>
+        <option value="Urgent">Urgent</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <span class="flbl">Assigned To</span>
+      <select id="all-assign-filter" onchange="renderAllTasks()">
+        <option value="">Everyone</option>
+      </select>
+      <span class="flbl">Category</span>
+      <select id="all-cat-filter" onchange="renderAllTasks()">
+        <option value="">All</option>
+        <option>Operations</option><option>Billing</option><option>Finance</option>
+        <option>HR</option><option>Clinical</option><option>Reports</option>
+        <option>Compliance</option><option>IT</option><option>Admin</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Task</th><th>Assigned To</th><th>Priority</th>
+              <th>Status</th><th>Progress</th><th>Due Date</th><th>Updated</th>
+            </tr>
+          </thead>
+          <tbody id="all-tasks-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADD TASK ══ -->
+  <div class="panel" id="panel-add">
+    <p class="sh green">Create New Task</p>
+    <div class="card">
+      <div class="field">
+        <label>Task Title *</label>
+        <input id="add-title" type="text" placeholder="Short, clear task title">
+      </div>
+      <div class="field">
+        <label>Full Description</label>
+        <textarea id="add-desc" placeholder="Describe the task, what needs to be done, any relevant details…"></textarea>
+      </div>
+      <div class="row3">
+        <div class="field">
+          <label>Category *</label>
+          <select id="add-category">
+            <option>Operations</option><option>Billing</option><option>Finance</option>
+            <option>HR</option><option>Clinical</option><option>Reports</option>
+            <option>Compliance</option><option>IT</option><option>Admin</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Priority *</label>
+          <select id="add-priority">
+            <option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Due Date *</label>
+          <input id="add-due" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label>Assign To *</label>
+        <select id="add-assignee"></select>
+      </div>
+      <div class="field">
+        <label>Initial Note (optional)</label>
+        <input id="add-note" type="text" placeholder="Any initial context or note for the assignee">
+      </div>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn btn-gr" style="padding:11px 24px;font-size:13px" onclick="createTask()">✅ Create Task</button>
+        <button class="btn" onclick="clearAddForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ACTIVITY FEED ══ -->
+  <div class="panel" id="panel-activity">
+    <p class="sh">Recent Activity (All Tasks)</p>
+    <div class="filter-bar">
+      <span class="flbl">Show</span>
+      <select id="act-filter" onchange="renderActivity()">
+        <option value="50">Last 50 updates</option>
+        <option value="20">Last 20 updates</option>
+        <option value="100">Last 100 updates</option>
+      </select>
+    </div>
+    <div id="activity-feed"><div class="muted">Loading activity…</div></div>
+  </div>
+
+  <!-- ══ SETUP ══ -->
+  <div class="panel" id="panel-setup">
+    <p class="sh">Google Sheets + Apps Script Setup</p>
+
+    <div class="setup-step">
+      <div class="step-title"><span class="step-num">1</span>Set Your Apps Script URL</div>
+      <div class="step-desc">
+        After deploying the Apps Script below, paste the Web App URL here:
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;padding-left:30px">
+        <input id="setup-api-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" style="flex:1">
+        <button class="btn btn-a" onclick="saveApiUrl()">Save</button>
+        <button class="btn" onclick="testConnection()">Test</button>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-title"><span class="step-num">2</span>Create Google Sheet tabs with these exact names</div>
+      <div class="step-desc">
+        Create 3 tabs: <code>Users</code> &nbsp; <code>Tasks</code> &nbsp; <code>Task_Updates</code><br><br>
+        <strong>Users tab columns:</strong><br>
+        <code>email</code> <code>name</code> <code>secret_key</code> <code>role</code> <code>active</code>
+        <button class="copy-btn" onclick="copyText('email\tname\tsecret_key\trole\tactive')">Copy</button><br><br>
+        <strong>Tasks tab columns:</strong><br>
+        <code>task_id</code> <code>title</code> <code>description</code> <code>category</code> <code>priority</code> <code>status</code> <code>progress_percent</code> <code>created_by</code> <code>assigned_to</code> <code>created_at</code> <code>due_date</code> <code>last_updated_by</code> <code>last_updated_at</code> <code>latest_note</code> <code>completed_at</code>
+        <button class="copy-btn" onclick="copyText('task_id\ttitle\tdescription\tcategory\tpriority\tstatus\tprogress_percent\tcreated_by\tassigned_to\tcreated_at\tdue_date\tlast_updated_by\tlast_updated_at\tlatest_note\tcompleted_at')">Copy</button><br><br>
+        <strong>Task_Updates tab columns:</strong><br>
+        <code>update_id</code> <code>task_id</code> <code>updated_by</code> <code>updated_at</code> <code>old_status</code> <code>new_status</code> <code>old_progress</code> <code>new_progress</code> <code>note</code>
+        <button class="copy-btn" onclick="copyText('update_id\ttask_id\tupdated_by\tupdated_at\told_status\tnew_status\told_progress\tnew_progress\tnote')">Copy</button>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-title"><span class="step-num">3</span>Apps Script — Paste this into Extensions → Apps Script</div>
+      <div style="display:flex;justify-content:flex-end;padding-right:2px;margin-top:8px">
+        <button class="copy-btn" onclick="copyAppsScript()">📋 Copy Full Script</button>
+      </div>
+      <pre class="code-block" id="apps-script-display">// Shifa Medical Group — Task Tracker Apps Script
+// Paste this in Google Apps Script (Extensions → Apps Script)
+// Then Deploy → New Deployment → Web App → Execute as: Me → Anyone
+
+const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+    if (action === "login") return respond(handleLogin(ss, data));
+    const user = verifyUser(ss, data.email, data.secret);
+    if (!user) return respond({ok:false, message:"Authentication failed"});
+
+    if (action === "getUsers")       return respond(getUsers(ss));
+    if (action === "getTasks")       return respond(getTasks(ss, data, user));
+    if (action === "getTaskById")    return respond(getTaskById(ss, data));
+    if (action === "createTask")     return respond(createTask(ss, data, user));
+    if (action === "updateTask")     return respond(updateTask(ss, data, user));
+    if (action === "getTaskUpdates") return respond(getTaskUpdates(ss, data));
+    if (action === "getActivity")    return respond(getActivity(ss, data));
+    if (action === "getStats")       return respond(getStats(ss, user));
+
+    return respond({ok:false, message:"Unknown action"});
+  } catch(err) {
+    return respond({ok:false, message:err.message});
+  }
+}
+
+function respond(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleLogin(ss, data) {
+  const sheet = ss.getSheetByName("Users");
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    const [email, name, secret, role, active] = rows[i];
+    if (email.toLowerCase() === data.email.toLowerCase() &&
+        secret === data.secret && active === true) {
+      return {ok:true, user:{email, name, role}};
+    }
+  }
+  return {ok:false, message:"Invalid credentials"};
+}
+
+function verifyUser(ss, email, secret) {
+  const sheet = ss.getSheetByName("Users");
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0].toLowerCase() === email.toLowerCase() &&
+        rows[i][2] === secret && rows[i][4] === true) {
+      return {email:rows[i][0], name:rows[i][1], role:rows[i][3]};
+    }
+  }
+  return null;
+}
+
+function getUsers(ss) {
+  const sheet = ss.getSheetByName("Users");
+  const rows = sheet.getDataRange().getValues();
+  const users = rows.slice(1)
+    .filter(r => r[4] === true)
+    .map(r => ({email:r[0], name:r[1], role:r[3]}));
+  return {ok:true, users};
+}
+
+function getTasks(ss, data, user) {
+  const sheet = ss.getSheetByName("Tasks");
+  const rows = sheet.getDataRange().getValues();
+  let tasks = rows.slice(1).map(r => rowToTask(r));
+
+  if (data.assigned_to) tasks = tasks.filter(t => t.assigned_to === data.assigned_to);
+  if (data.status) tasks = tasks.filter(t => t.status === data.status);
+  if (data.priority) tasks = tasks.filter(t => t.priority === data.priority);
+  if (data.category) tasks = tasks.filter(t => t.category === data.category);
+  if (data.mine) tasks = tasks.filter(t => t.assigned_to === user.email);
+
+  tasks.sort((a,b) => {
+    const priOrder = {Urgent:0, High:1, Medium:2, Low:3};
+    return (priOrder[a.priority]||9) - (priOrder[b.priority]||9);
+  });
+  return {ok:true, tasks};
+}
+
+function getTaskById(ss, data) {
+  const sheet = ss.getSheetByName("Tasks");
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(data.task_id)) {
+      return {ok:true, task:rowToTask(rows[i])};
+    }
+  }
+  return {ok:false, message:"Task not found"};
+}
+
+function rowToTask(r) {
+  return {
+    task_id:r[0], title:r[1], description:r[2], category:r[3], priority:r[4],
+    status:r[5], progress_percent:Number(r[6]||0), created_by:r[7], assigned_to:r[8],
+    created_at:r[9], due_date:r[10], last_updated_by:r[11], last_updated_at:r[12],
+    latest_note:r[13], completed_at:r[14]
+  };
+}
+
+function createTask(ss, data, user) {
+  const sheet = ss.getSheetByName("Tasks");
+  const taskId = "T" + Date.now();
+  const now = new Date().toISOString();
+  sheet.appendRow([
+    taskId, data.title, data.description||"", data.category, data.priority||"Medium",
+    "Not Started", 0, user.email, data.assigned_to, now, data.due_date||"",
+    user.email, now, data.note||"", ""
+  ]);
+  if (data.note) {
+    logUpdate(ss, taskId, user.email, "", "Not Started", 0, 0, data.note);
+  }
+  return {ok:true, task_id:taskId};
+}
+
+function updateTask(ss, data, user) {
+  const sheet = ss.getSheetByName("Tasks");
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(data.task_id)) {
+      const oldStatus = rows[i][5];
+      const oldProg = rows[i][6];
+      const newStatus = data.status || rows[i][5];
+      const newProg = data.progress_percent !== undefined ? Number(data.progress_percent) : rows[i][6];
+      const now = new Date().toISOString();
+      const completedAt = newStatus === "Completed" ? (rows[i][14] || now) : "";
+
+      sheet.getRange(i+1, 6).setValue(newStatus);
+      sheet.getRange(i+1, 7).setValue(newProg);
+      sheet.getRange(i+1, 10).setValue(data.due_date || rows[i][10]);
+      sheet.getRange(i+1, 12).setValue(user.email);
+      sheet.getRange(i+1, 13).setValue(now);
+      sheet.getRange(i+1, 14).setValue(data.note || rows[i][13]);
+      sheet.getRange(i+1, 15).setValue(completedAt);
+
+      logUpdate(ss, data.task_id, user.email, oldStatus, newStatus, oldProg, newProg, data.note||"");
+      return {ok:true};
+    }
+  }
+  return {ok:false, message:"Task not found"};
+}
+
+function logUpdate(ss, taskId, updatedBy, oldStatus, newStatus, oldProg, newProg, note) {
+  const sheet = ss.getSheetByName("Task_Updates");
+  sheet.appendRow([
+    "U"+Date.now(), taskId, updatedBy, new Date().toISOString(),
+    oldStatus, newStatus, oldProg, newProg, note
+  ]);
+}
+
+function getTaskUpdates(ss, data) {
+  const sheet = ss.getSheetByName("Task_Updates");
+  const rows = sheet.getDataRange().getValues();
+  const updates = rows.slice(1)
+    .filter(r => String(r[1]) === String(data.task_id))
+    .map(r => ({
+      update_id:r[0], task_id:r[1], updated_by:r[2], updated_at:r[3],
+      old_status:r[4], new_status:r[5], old_progress:r[6], new_progress:r[7], note:r[8]
+    }))
+    .reverse();
+  return {ok:true, updates};
+}
+
+function getActivity(ss, data) {
+  const tasksSheet = ss.getSheetByName("Tasks");
+  const updSheet = ss.getSheetByName("Task_Updates");
+  const taskRows = tasksSheet.getDataRange().getValues();
+  const taskMap = {};
+  taskRows.slice(1).forEach(r => { taskMap[r[0]] = r[1]; });
+
+  const rows = updSheet.getDataRange().getValues();
+  const limit = data.limit || 50;
+  const activity = rows.slice(1).map(r => ({
+    update_id:r[0], task_id:r[1], task_title:taskMap[r[1]]||r[1],
+    updated_by:r[2], updated_at:r[3],
+    old_status:r[4], new_status:r[5], old_progress:r[6], new_progress:r[7], note:r[8]
+  })).reverse().slice(0, limit);
+  return {ok:true, activity};
+}
+
+function getStats(ss, user) {
+  const sheet = ss.getSheetByName("Tasks");
+  const rows = sheet.getDataRange().getValues().slice(1);
+  const today = new Date(); today.setHours(0,0,0,0);
+  let open=0, inProgress=0, overdue=0, urgent=0, done=0, dueToday=0;
+  const byStatus={}, byCat={};
+
+  rows.forEach(r => {
+    const status = r[5], priority = r[4], due = r[10]?new Date(r[10]):null;
+    if (due) due.setHours(0,0,0,0);
+    const active = status !== "Completed" && status !== "Cancelled";
+
+    if (active) open++;
+    if (status === "In Progress") inProgress++;
+    if (status === "Completed") done++;
+    if (priority === "Urgent" && active) urgent++;
+    if (due && due < today && active) overdue++;
+    if (due && due.getTime() === today.getTime() && active) dueToday++;
+
+    byStatus[status] = (byStatus[status]||0) + 1;
+    if (r[3]) byCat[r[3]] = (byCat[r[3]]||0) + 1;
+  });
+
+  return {ok:true, stats:{open, inProgress, overdue, urgent, done, dueToday, byStatus, byCat}};
+}</pre>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-title"><span class="step-num">4</span>Deploy the Script</div>
+      <div class="step-desc">
+        In Apps Script: <strong>Deploy → New Deployment → Web App</strong><br>
+        Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong><br>
+        Copy the deployment URL and paste it in Step 1 above.
+      </div>
+    </div>
+  </div>
+
+  </div><!-- panels -->
+</div><!-- app -->
+
+<!-- ══ TASK DETAIL SLIDE-IN ══ -->
+<div id="detail-overlay" onclick="closeDetail()"></div>
+<div id="detail-panel">
+  <div class="detail-hdr">
+    <div class="detail-hdr-info">
+      <div class="detail-hdr-title" id="dp-title">Task Title</div>
+      <div class="detail-hdr-meta">
+        <span id="dp-status-badge"></span>
+        <span id="dp-priority-badge"></span>
+        <span class="muted" id="dp-id"></span>
+      </div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()">×</button>
+  </div>
+  <div class="detail-body">
+
+    <!-- Update form -->
+    <div class="update-form">
+      <h4>✏️ Update This Task</h4>
+      <div class="row2">
+        <div class="field">
+          <label>New Status</label>
+          <select id="dp-new-status">
+            <option>Not Started</option><option>In Progress</option><option>Waiting</option>
+            <option>Blocked</option><option>Review</option><option>Completed</option><option>Cancelled</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Due Date</label>
+          <input id="dp-due-date" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label>Progress — <span id="dp-prog-display">0</span>%</label>
+        <input type="range" min="0" max="100" step="5" id="dp-progress" class="prog-slider" oninput="document.getElementById('dp-prog-display').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Update Note</label>
+        <textarea id="dp-note" placeholder="What was done, what's happening, any blockers…" style="min-height:60px"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gr" onclick="submitUpdate()">💾 Save Update</button>
+        <button class="btn btn-r" onclick="markComplete()">✅ Mark Complete</button>
+      </div>
+    </div>
+
+    <!-- Task Info -->
+    <div style="margin-bottom:12px">
+      <p class="sh" style="margin-top:0">Task Details</p>
+      <div class="card" style="font-size:12px;line-height:1.8">
+        <div><span style="color:var(--t3)">Description: </span><span id="dp-desc">—</span></div>
+        <div><span style="color:var(--t3)">Category: </span><span id="dp-cat">—</span></div>
+        <div><span style="color:var(--t3)">Assigned To: </span><span id="dp-assigned">—</span></div>
+        <div><span style="color:var(--t3)">Created By: </span><span id="dp-created-by">—</span></div>
+        <div><span style="color:var(--t3)">Created At: </span><span id="dp-created-at">—</span></div>
+        <div><span style="color:var(--t3)">Due Date: </span><span id="dp-due">—</span></div>
+        <div><span style="color:var(--t3)">Last Updated By: </span><span id="dp-lastupdby">—</span></div>
+        <div><span style="color:var(--t3)">Last Updated: </span><span id="dp-lastupdat">—</span></div>
+        <div><span style="color:var(--t3)">Latest Note: </span><span id="dp-lastnote" style="font-style:italic">—</span></div>
+        <div style="margin-top:8px">
+          <span style="color:var(--t3)">Progress: </span>
+          <span id="dp-prog-pct" style="font-weight:600;color:var(--a)">—</span>
+          <div class="prog-wrap"><div class="prog-fill" id="dp-prog-bar" style="background:var(--a);width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <p class="sh">Update History</p>
+    <div class="timeline" id="dp-timeline"><div class="muted">Loading…</div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══ CONFIG ══ */
+let API_URL = localStorage.getItem("shifa-task-api") || "";
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+let currentUser = null;
+let allTasks = [];
+let allUpdates = [];
+let allUsers = [];
+let openDetailTaskId = null;
+let autoRefreshTimer = null;
+
+/* ══ AUTH ══ */
+async function login(){
+  const email = document.getElementById("login-email").value.trim().toLowerCase();
+  const secret = document.getElementById("login-secret").value.trim();
+  const errEl = document.getElementById("login-error");
+  errEl.textContent = "";
+
+  if(!API_URL){
+    // Allow local/demo login if no API
+    errEl.textContent = "No API URL set — go to Setup tab after demo login.";
+    // Proceed with demo mode
+    currentUser = {email, secret, name: email.split("@")[0], role:"user"};
+    bootApp();
+    loadDemoData();
+    return;
+  }
+
+  try{
+    const res = await apiCall({action:"login", email, secret});
+    if(!res.ok){ errEl.textContent = res.message || "Login failed"; return; }
+    currentUser = {email, secret, name:res.user.name, role:res.user.role};
+    localStorage.setItem("shifa-task-user", JSON.stringify(currentUser));
+    bootApp();
+    await refreshAll();
+  }catch(err){
+    errEl.textContent = "Connection error. Check API URL in Setup.";
+  }
+}
+
+async function autoLogin(){
+  const raw = localStorage.getItem("shifa-task-user");
+  if(!raw) return;
+  try{
+    const saved = JSON.parse(raw);
+    if(!API_URL){
+      currentUser = saved;
+      bootApp();
+      loadDemoData();
+      return;
+    }
+    const res = await apiCall({action:"login", email:saved.email, secret:saved.secret});
+    if(!res.ok){ localStorage.removeItem("shifa-task-user"); return; }
+    currentUser = saved;
+    bootApp();
+    await refreshAll();
+  }catch(e){}
+}
+
+function bootApp(){
+  document.getElementById("login-screen").classList.add("hidden");
+  const app = document.getElementById("app");
+  app.style.display = "flex";
+  document.getElementById("user-name-display").textContent = `${currentUser.name} · ${currentUser.role}`;
+  document.getElementById("add-due").value = new Date().toISOString().slice(0,10);
+  startClock();
+  startAutoRefresh();
+}
+
+/* ══ API ══ */
+async function apiCall(payload){
+  const res = await fetch(API_URL, {
+    method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  });
+  return await res.json();
+}
+
+function auth(extra={}){ return Object.assign({email:currentUser.email, secret:currentUser.secret}, extra); }
+
+/* ══ REFRESH ══ */
+async function refreshAll(){
+  if(!API_URL) return;
+  document.getElementById("sync-status").textContent = "Syncing…";
+  try{
+    const [statsRes, tasksRes, usersRes, actRes] = await Promise.all([
+      apiCall(auth({action:"getStats"})),
+      apiCall(auth({action:"getTasks"})),
+      apiCall(auth({action:"getUsers"})),
+      apiCall(auth({action:"getActivity", limit:100}))
+    ]);
+    if(tasksRes.ok) allTasks = tasksRes.tasks;
+    if(usersRes.ok){ allUsers = usersRes.users; populateUserSelects(); }
+    if(actRes.ok) allUpdates = actRes.activity;
+    if(statsRes.ok) renderStats(statsRes.stats);
+    renderOverview();
+    renderMyTasks();
+    renderAllTasks();
+    renderActivity();
+    document.getElementById("sync-status").textContent = "Last synced " + new Date().toLocaleTimeString();
+  }catch(e){
+    document.getElementById("sync-status").textContent = "Sync failed — " + e.message;
+  }
+}
+
+/* ══ DEMO DATA ══ */
+function loadDemoData(){
+  allUsers = [
+    {email:"dr.shah@shifa.com", name:"Dr. Farheen Shah-Khan", role:"admin"},
+    {email:"billing@shifa.com", name:"Billing Team", role:"billing"},
+    {email:"ops@shifa.com", name:"Operations", role:"staff"},
+    {email:"finance@shifa.com", name:"Finance", role:"staff"},
+  ];
+  const today = new Date();
+  const days = n => { const d = new Date(today); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+  allTasks = [
+    {task_id:"T001",title:"Submit April Medicare Claims",description:"Submit all April CCM/RPM claims to Medicare by the deadline.",category:"Billing",priority:"Urgent",status:"In Progress",progress_percent:60,created_by:"dr.shah@shifa.com",assigned_to:"billing@shifa.com",created_at:"2026-04-01T09:00:00Z",due_date:days(1),last_updated_by:"billing@shifa.com",last_updated_at:"2026-04-11T14:00:00Z",latest_note:"60% of claims submitted, working on remainder.",completed_at:""},
+    {task_id:"T002",title:"Update RPM Device Compliance Report",description:"Compile compliance report for all RPM patients — flag devices inactive >20 days.",category:"Reports",priority:"High",status:"Not Started",progress_percent:0,created_by:"dr.shah@shifa.com",assigned_to:"ops@shifa.com",created_at:"2026-04-05T10:00:00Z",due_date:days(3),last_updated_by:"dr.shah@shifa.com",last_updated_at:"2026-04-05T10:00:00Z",latest_note:"",completed_at:""},
+    {task_id:"T003",title:"Renew NH Contracts — West Metro",description:"Review and renew nursing home contracts for West Metro Dialysis LLC.",category:"Compliance",priority:"High",status:"Waiting",progress_percent:30,created_by:"dr.shah@shifa.com",assigned_to:"finance@shifa.com",created_at:"2026-03-20T08:00:00Z",due_date:days(-2),last_updated_by:"finance@shifa.com",last_updated_at:"2026-04-08T11:00:00Z",latest_note:"Waiting on legal review from attorney.",completed_at:""},
+    {task_id:"T004",title:"Payroll Review — Q1",description:"Verify payroll accuracy for Q1. Cross-check with HR records.",category:"Finance",priority:"Medium",status:"Completed",progress_percent:100,created_by:"dr.shah@shifa.com",assigned_to:"finance@shifa.com",created_at:"2026-03-28T09:00:00Z",due_date:days(-5),last_updated_by:"finance@shifa.com",last_updated_at:"2026-04-09T16:00:00Z",latest_note:"All payroll verified and signed off.",completed_at:"2026-04-09T16:00:00Z"},
+    {task_id:"T005",title:"IT — EHR Software Update",description:"Schedule and execute EHR system update v4.2. Coordinate with staff for downtime window.",category:"IT",priority:"Medium",status:"In Progress",progress_percent:50,created_by:"ops@shifa.com",assigned_to:"ops@shifa.com",created_at:"2026-04-02T10:00:00Z",due_date:days(7),last_updated_by:"ops@shifa.com",last_updated_at:"2026-04-10T09:00:00Z",latest_note:"Testing environment done, scheduling prod window this weekend.",completed_at:""},
+    {task_id:"T006",title:"Staff Training — HIPAA Refresher",description:"Organize mandatory annual HIPAA refresher for all clinical staff.",category:"HR",priority:"Low",status:"Not Started",progress_percent:0,created_by:"dr.shah@shifa.com",assigned_to:"ops@shifa.com",created_at:"2026-04-06T09:00:00Z",due_date:days(14),last_updated_by:"dr.shah@shifa.com",last_updated_at:"2026-04-06T09:00:00Z",latest_note:"",completed_at:""},
+    {task_id:"T007",title:"Resolve Claim Denials — Medicaid",description:"Investigate and resubmit the 23 denied Medicaid claims from March.",category:"Billing",priority:"Urgent",status:"Blocked",progress_percent:20,created_by:"billing@shifa.com",assigned_to:"billing@shifa.com",created_at:"2026-04-03T08:00:00Z",due_date:days(-1),last_updated_by:"billing@shifa.com",last_updated_at:"2026-04-11T10:00:00Z",latest_note:"Blocked — waiting on Medicaid portal access to be restored by IT.",completed_at:""},
+  ];
+  allUpdates = [
+    {update_id:"U1",task_id:"T001",task_title:"Submit April Medicare Claims",updated_by:"billing@shifa.com",updated_at:"2026-04-11T14:00:00Z",old_status:"Not Started",new_status:"In Progress",old_progress:0,new_progress:60,note:"60% of claims submitted, working on remainder."},
+    {update_id:"U2",task_id:"T004",task_title:"Payroll Review — Q1",updated_by:"finance@shifa.com",updated_at:"2026-04-09T16:00:00Z",old_status:"In Progress",new_status:"Completed",old_progress:80,new_progress:100,note:"All payroll verified and signed off."},
+    {update_id:"U3",task_id:"T007",task_title:"Resolve Claim Denials — Medicaid",updated_by:"billing@shifa.com",updated_at:"2026-04-11T10:00:00Z",old_status:"In Progress",new_status:"Blocked",old_progress:20,new_progress:20,note:"Blocked — waiting on Medicaid portal access to be restored by IT."},
+    {update_id:"U4",task_id:"T005",task_title:"IT — EHR Software Update",updated_by:"ops@shifa.com",updated_at:"2026-04-10T09:00:00Z",old_status:"Not Started",new_status:"In Progress",old_progress:0,new_progress:50,note:"Testing environment done, scheduling prod window this weekend."},
+    {update_id:"U5",task_id:"T003",task_title:"Renew NH Contracts — West Metro",updated_by:"finance@shifa.com",updated_at:"2026-04-08T11:00:00Z",old_status:"Not Started",new_status:"Waiting",old_progress:0,new_progress:30,note:"Waiting on legal review from attorney."},
+  ];
+  populateUserSelects();
+  renderStats(calcLocalStats());
+  renderOverview();
+  renderMyTasks();
+  renderAllTasks();
+  renderActivity();
+  document.getElementById("sync-status").textContent = "Demo mode — data is local only";
+  showToast("Demo mode — connect API in Setup tab for live data");
+}
+
+function calcLocalStats(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let open=0,inProgress=0,overdue=0,urgent=0,done=0,dueToday=0;
+  const byStatus={}, byCat={};
+  allTasks.forEach(t => {
+    const active = t.status !== "Completed" && t.status !== "Cancelled";
+    const due = t.due_date ? new Date(t.due_date) : null;
+    if(due) due.setHours(0,0,0,0);
+    if(active) open++;
+    if(t.status==="In Progress") inProgress++;
+    if(t.status==="Completed") done++;
+    if(t.priority==="Urgent"&&active) urgent++;
+    if(due&&due<today&&active) overdue++;
+    if(due&&due.getTime()===today.getTime()&&active) dueToday++;
+    byStatus[t.status]=(byStatus[t.status]||0)+1;
+    if(t.category) byCat[t.category]=(byCat[t.category]||0)+1;
+  });
+  return {open,inProgress,overdue,urgent,done,dueToday,byStatus,byCat};
+}
+
+/* ══ RENDER STATS ══ */
+function renderStats(s){
+  setText("ov-open", s.open);
+  setText("ov-inprog", s.inProgress);
+  setText("ov-overdue", s.overdue);
+  setText("ov-urgent", s.urgent);
+  setText("ov-done", s.done);
+  setText("ov-today", s.dueToday);
+}
+
+/* ══ RENDER OVERVIEW ══ */
+function renderOverview(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const week = new Date(today); week.setDate(week.getDate()+7);
+
+  // Overdue
+  const overdueT = allTasks.filter(t=>{
+    const due = t.due_date?new Date(t.due_date):null;
+    if(due) due.setHours(0,0,0,0);
+    return due&&due<today&&t.status!=="Completed"&&t.status!=="Cancelled";
+  }).slice(0,5);
+  const overdueEl = document.getElementById("overdue-list");
+  overdueEl.innerHTML = overdueT.length ? overdueT.map(t=>miniTaskCard(t)).join("") : '<div class="muted">✓ No overdue tasks</div>';
+
+  // Due this week
+  const dueWeek = allTasks.filter(t=>{
+    const due = t.due_date?new Date(t.due_date):null;
+    if(due) due.setHours(0,0,0,0);
+    return due&&due>=today&&due<=week&&t.status!=="Completed"&&t.status!=="Cancelled";
+  }).slice(0,5);
+  const dueEl = document.getElementById("dueweek-list");
+  dueEl.innerHTML = dueWeek.length ? dueWeek.map(t=>miniTaskCard(t)).join("") : '<div class="muted">No tasks due this week</div>';
+
+  // Status bar chart
+  const stats = calcLocalStats();
+  const statusItems = Object.entries(stats.byStatus).sort((a,b)=>b[1]-a[1]);
+  const maxSt = Math.max(...statusItems.map(x=>x[1]),1);
+  const statusColors = {"Not Started":"#6080a0","In Progress":"var(--green)","Waiting":"var(--ora)","Blocked":"var(--red)","Review":"var(--a)","Completed":"var(--g2)","Cancelled":"#445566"};
+  document.getElementById("status-breakdown-chart").innerHTML = statusItems.map(([k,v])=>`
+    <div class="bar-row">
+      <div class="bar-label" style="width:100px">${k}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.round(v/maxSt*100)}%;background:${statusColors[k]||"var(--a)"}">
+          <span>${v}</span>
+        </div>
+      </div>
+    </div>`).join("");
+
+  // Category chart
+  const catItems = Object.entries(stats.byCat).sort((a,b)=>b[1]-a[1]);
+  const maxCat = Math.max(...catItems.map(x=>x[1]),1);
+  const catColors=["var(--a)","var(--green)","var(--g2)","var(--ora)","var(--red)","#8fb6e8","#d47e73","#58b5e5","#8cc97e"];
+  document.getElementById("category-breakdown-chart").innerHTML = catItems.map(([k,v],i)=>`
+    <div class="bar-row">
+      <div class="bar-label" style="width:100px">${k}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.round(v/maxCat*100)}%;background:${catColors[i%catColors.length]}">
+          <span>${v}</span>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function miniTaskCard(t){
+  const due = t.due_date ? fmtDate(t.due_date) : "—";
+  return `<div style="padding:8px 0;border-bottom:.5px solid var(--b2);cursor:pointer" onclick="openDetail('${t.task_id}')">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+      <span class="${priBadgeClass(t.priority)}">${t.priority}</span>
+      <span style="font-size:11px;font-weight:600;color:var(--t)">${escHtml(t.title)}</span>
+    </div>
+    <div style="font-size:10px;color:var(--t3)">Assigned to ${getUserName(t.assigned_to)} · Due ${due}</div>
+    <div class="prog-wrap"><div class="prog-fill" style="width:${t.progress_percent||0}%;background:var(--a)"></div></div>
+  </div>`;
+}
+
+/* ══ MY TASKS ══ */
+function renderMyTasks(){
+  const statusF = document.getElementById("my-status-filter")?.value||"";
+  const priF = document.getElementById("my-priority-filter")?.value||"";
+  let tasks = allTasks.filter(t=>t.assigned_to===currentUser.email);
+  if(statusF) tasks=tasks.filter(t=>t.status===statusF);
+  if(priF) tasks=tasks.filter(t=>t.priority===priF);
+
+  const el = document.getElementById("my-tasks-list");
+  if(!tasks.length){ el.innerHTML = '<div class="empty-state"><div class="icon">🎉</div><p>No tasks assigned to you</p></div>'; return; }
+  el.innerHTML = tasks.map(t=>taskCard(t)).join("");
+}
+
+/* ══ ALL TASKS ══ */
+function renderAllTasks(){
+  const sf = document.getElementById("all-status-filter")?.value||"";
+  const pf = document.getElementById("all-priority-filter")?.value||"";
+  const af = document.getElementById("all-assign-filter")?.value||"";
+  const cf = document.getElementById("all-cat-filter")?.value||"";
+  let tasks = allTasks;
+  if(sf) tasks=tasks.filter(t=>t.status===sf);
+  if(pf) tasks=tasks.filter(t=>t.priority===pf);
+  if(af) tasks=tasks.filter(t=>t.assigned_to===af);
+  if(cf) tasks=tasks.filter(t=>t.category===cf);
+
+  const tbody = document.getElementById("all-tasks-tbody");
+  if(!tasks.length){ tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--t3)">No tasks match filters</td></tr>'; return; }
+  tbody.innerHTML = tasks.map(t=>{
+    const today = new Date(); today.setHours(0,0,0,0);
+    const due = t.due_date?new Date(t.due_date):null;
+    if(due) due.setHours(0,0,0,0);
+    const dueCls = !due?"due-ok":due<today&&t.status!=="Completed"?"due-overdue":due.getTime()===today.getTime()?"due-today":"due-ok";
+    const progColor = t.progress_percent>=80?"var(--green)":t.progress_percent>=40?"var(--a)":"var(--t3)";
+    return `<tr>
+      <td style="color:var(--t3);font-size:10px">${t.task_id}</td>
+      <td><div class="task-title-cell" onclick="openDetail('${t.task_id}')">${escHtml(t.title)}</div>
+          <div style="font-size:10px;color:var(--t3)">${t.category}</div></td>
+      <td style="font-size:11px">${getUserName(t.assigned_to)}</td>
+      <td><span class="${priBadgeClass(t.priority)}">${t.priority}</span></td>
+      <td><span class="badge ${statusBadgeClass(t.status)}">${t.status}</span></td>
+      <td style="min-width:80px">
+        <div style="font-size:10px;color:${progColor};font-weight:600">${t.progress_percent}%</div>
+        <div class="prog-wrap" style="margin-top:3px"><div class="prog-fill" style="width:${t.progress_percent}%;background:${progColor}"></div></div>
+      </td>
+      <td class="${dueCls}">${due?fmtDate(t.due_date):"—"}</td>
+      <td style="font-size:10px;color:var(--t3)">${t.last_updated_at?fmtRelative(t.last_updated_at):"—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ══ TASK CARD (My Tasks) ══ */
+function taskCard(t){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = t.due_date?new Date(t.due_date):null;
+  if(due) due.setHours(0,0,0,0);
+  const isOverdue = due&&due<today&&t.status!=="Completed"&&t.status!=="Cancelled";
+  const isToday = due&&due.getTime()===today.getTime();
+  const dueTxt = !due?"No due date":isOverdue?`⚠ Overdue: ${fmtDate(t.due_date)}`:isToday?`📅 Due Today`:fmtDate(t.due_date);
+  const dueCls = isOverdue?"due-overdue":isToday?"due-today":"due-ok";
+  const progColor = t.progress_percent>=80?"var(--green)":t.progress_percent>=40?"var(--a)":"var(--ora)";
+
+  return `<div class="card" style="margin-bottom:10px;cursor:pointer;border-left:3px solid ${isOverdue?"var(--red)":t.status==="Completed"?"var(--g2)":"var(--a)"}" onclick="openDetail('${t.task_id}')">
+    <div style="display:flex;align-items:flex-start;gap:8px;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:600;color:var(--t);flex:1">${escHtml(t.title)}</div>
+      <span class="badge ${statusBadgeClass(t.status)}">${t.status}</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <span class="${priBadgeClass(t.priority)}">${t.priority}</span>
+      <span style="font-size:10px;color:var(--t3)">${t.category}</span>
+      <span style="font-size:10px;color:var(--t3)">·</span>
+      <span class="${dueCls}" style="font-size:10px">${dueTxt}</span>
+    </div>
+    ${t.latest_note?`<div style="font-size:11px;color:var(--t2);font-style:italic;padding:6px 10px;background:var(--s2);border-radius:6px;margin-bottom:8px">${escHtml(t.latest_note)}</div>`:""}
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:10px;color:${progColor};font-weight:600;width:36px">${t.progress_percent}%</div>
+      <div class="prog-wrap" style="flex:1;margin:0"><div class="prog-fill" style="width:${t.progress_percent}%;background:${progColor}"></div></div>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-top:6px">Updated ${t.last_updated_at?fmtRelative(t.last_updated_at):"—"} · Click to update</div>
+  </div>`;
+}
+
+/* ══ ACTIVITY ══ */
+function renderActivity(){
+  const limit = +document.getElementById("act-filter")?.value||50;
+  const items = allUpdates.slice(0,limit);
+  const el = document.getElementById("activity-feed");
+  if(!items.length){ el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No activity yet</p></div>'; return; }
+  el.innerHTML = items.map(a=>{
+    const statusChange = a.old_status!==a.new_status;
+    const progChange = a.old_progress!==a.new_progress;
+    const dotColor = a.new_status==="Completed"?"var(--g2)":a.new_status==="Blocked"?"var(--red)":a.new_status==="In Progress"?"var(--green)":"var(--a)";
+    return `<div class="activity-item">
+      <div class="act-dot" style="background:${dotColor}"></div>
+      <div class="act-body">
+        <div class="act-title"><strong style="color:var(--t)">${getUserName(a.updated_by)}</strong> updated <span style="color:var(--a2);cursor:pointer" onclick="openDetail('${a.task_id}')">${escHtml(a.task_title)}</span></div>
+        <div class="act-meta">${fmtDateTime(a.updated_at)}</div>
+        ${statusChange?`<div style="font-size:10px;margin-top:3px">Status: <span style="color:var(--t3);text-decoration:line-through">${a.old_status}</span> → <span class="badge ${statusBadgeClass(a.new_status)}">${a.new_status}</span></div>`:""}
+        ${progChange?`<div style="font-size:10px;margin-top:2px;color:var(--t3)">Progress: ${a.old_progress}% → <strong style="color:var(--a)">${a.new_progress}%</strong></div>`:""}
+        ${a.note?`<div class="act-note">${escHtml(a.note)}</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ══ TASK DETAIL ══ */
+async function openDetail(taskId){
+  openDetailTaskId = taskId;
+  const t = allTasks.find(x=>x.task_id===taskId);
+  if(!t) return;
+
+  document.getElementById("dp-title").textContent = t.title;
+  document.getElementById("dp-id").textContent = "#"+t.task_id;
+  document.getElementById("dp-status-badge").innerHTML = `<span class="badge ${statusBadgeClass(t.status)}">${t.status}</span>`;
+  document.getElementById("dp-priority-badge").innerHTML = `<span class="${priBadgeClass(t.priority)}">${t.priority}</span>`;
+  document.getElementById("dp-desc").textContent = t.description||"—";
+  document.getElementById("dp-cat").textContent = t.category||"—";
+  document.getElementById("dp-assigned").textContent = getUserName(t.assigned_to);
+  document.getElementById("dp-created-by").textContent = getUserName(t.created_by);
+  document.getElementById("dp-created-at").textContent = fmtDateTime(t.created_at);
+  document.getElementById("dp-due").textContent = t.due_date?fmtDate(t.due_date):"Not set";
+  document.getElementById("dp-lastupdby").textContent = getUserName(t.last_updated_by);
+  document.getElementById("dp-lastupdat").textContent = fmtRelative(t.last_updated_at);
+  document.getElementById("dp-lastnote").textContent = t.latest_note||"—";
+  document.getElementById("dp-prog-pct").textContent = (t.progress_percent||0)+"%";
+  document.getElementById("dp-prog-bar").style.width = (t.progress_percent||0)+"%";
+
+  // Pre-fill update form
+  document.getElementById("dp-new-status").value = t.status;
+  document.getElementById("dp-progress").value = t.progress_percent||0;
+  document.getElementById("dp-prog-display").textContent = t.progress_percent||0;
+  document.getElementById("dp-due-date").value = t.due_date||"";
+  document.getElementById("dp-note").value = "";
+
+  // Open
+  document.getElementById("detail-overlay").classList.add("open");
+  document.getElementById("detail-panel").classList.add("open");
+
+  // Load history
+  loadTaskHistory(taskId);
+}
+
+async function loadTaskHistory(taskId){
+  const timeline = document.getElementById("dp-timeline");
+  timeline.innerHTML = "<div class='muted'>Loading…</div>";
+  const updates = allUpdates.filter(u=>u.task_id===taskId);
+  if(!updates.length){ timeline.innerHTML="<div class='muted'>No updates yet</div>"; return; }
+  timeline.innerHTML = updates.map(u=>{
+    const sc = u.old_status!==u.new_status;
+    const pc = u.old_progress!==u.new_progress;
+    return `<div class="tl-item">
+      <div class="tl-time">${fmtDateTime(u.updated_at)}</div>
+      <div class="tl-who">${getUserName(u.updated_by)}</div>
+      ${sc?`<div class="tl-change">Status: <span class="tl-old">${u.old_status}</span> → <span class="tl-new">${u.new_status}</span></div>`:""}
+      ${pc?`<div class="tl-change">Progress: <span class="tl-old">${u.old_progress}%</span> → <span class="tl-new">${u.new_progress}%</span></div>`:""}
+      ${u.note?`<div class="tl-note">${escHtml(u.note)}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function closeDetail(){
+  document.getElementById("detail-overlay").classList.remove("open");
+  document.getElementById("detail-panel").classList.remove("open");
+  openDetailTaskId = null;
+}
+
+/* ══ SUBMIT UPDATE ══ */
+async function submitUpdate(){
+  if(!openDetailTaskId){ showToast("No task selected"); return; }
+  const payload = auth({
+    action:"updateTask",
+    task_id: openDetailTaskId,
+    status: document.getElementById("dp-new-status").value,
+    progress_percent: document.getElementById("dp-progress").value,
+    due_date: document.getElementById("dp-due-date").value,
+    note: document.getElementById("dp-note").value.trim()
+  });
+
+  if(!API_URL){
+    // Local update for demo
+    const idx = allTasks.findIndex(t=>t.task_id===openDetailTaskId);
+    if(idx>=0){
+      const t = allTasks[idx];
+      const old = {...t};
+      t.status = payload.status; t.progress_percent = +payload.progress_percent;
+      t.due_date = payload.due_date; t.latest_note = payload.note||t.latest_note;
+      t.last_updated_by = currentUser.email; t.last_updated_at = new Date().toISOString();
+      if(t.status==="Completed") t.completed_at=new Date().toISOString();
+      allUpdates.unshift({update_id:"U"+Date.now(),task_id:openDetailTaskId,task_title:t.title,updated_by:currentUser.email,updated_at:new Date().toISOString(),old_status:old.status,new_status:t.status,old_progress:old.progress_percent,new_progress:+payload.progress_percent,note:payload.note||""});
+    }
+    renderStats(calcLocalStats()); renderOverview(); renderMyTasks(); renderAllTasks(); renderActivity();
+    openDetail(openDetailTaskId);
+    showToast("✓ Task updated");
+    return;
+  }
+
+  try{
+    const res = await apiCall(payload);
+    if(res.ok){ showToast("✓ Task updated"); await refreshAll(); openDetail(openDetailTaskId); }
+    else showToast(res.message||"Update failed");
+  }catch(e){ showToast("Error: "+e.message); }
+}
+
+async function markComplete(){
+  document.getElementById("dp-new-status").value = "Completed";
+  document.getElementById("dp-progress").value = 100;
+  document.getElementById("dp-prog-display").textContent = 100;
+  if(!document.getElementById("dp-note").value.trim()) document.getElementById("dp-note").value = "Task completed.";
+  await submitUpdate();
+}
+
+/* ══ CREATE TASK ══ */
+async function createTask(){
+  const title = document.getElementById("add-title").value.trim();
+  if(!title){ showToast("Task title is required"); return; }
+  const assignee = document.getElementById("add-assignee").value;
+  const payload = auth({
+    action:"createTask",
+    title, description: document.getElementById("add-desc").value.trim(),
+    category: document.getElementById("add-category").value,
+    priority: document.getElementById("add-priority").value,
+    due_date: document.getElementById("add-due").value,
+    assigned_to: assignee,
+    note: document.getElementById("add-note").value.trim()
+  });
+
+  if(!API_URL){
+    const newTask = {task_id:"T"+Date.now(),title,description:payload.description,category:payload.category,priority:payload.priority,status:"Not Started",progress_percent:0,created_by:currentUser.email,assigned_to:assignee,created_at:new Date().toISOString(),due_date:payload.due_date,last_updated_by:currentUser.email,last_updated_at:new Date().toISOString(),latest_note:payload.note||"",completed_at:""};
+    allTasks.push(newTask);
+    renderStats(calcLocalStats()); renderOverview(); renderMyTasks(); renderAllTasks();
+    clearAddForm(); showToast("✓ Task created");
+    return;
+  }
+  try{
+    const res = await apiCall(payload);
+    if(res.ok){ showToast("✓ Task created — #"+res.task_id); await refreshAll(); clearAddForm(); }
+    else showToast(res.message||"Failed");
+  }catch(e){ showToast("Error: "+e.message); }
+}
+
+function clearAddForm(){
+  ["add-title","add-desc","add-note"].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=""; });
+  document.getElementById("add-due").value = new Date().toISOString().slice(0,10);
+  document.getElementById("add-priority").value = "Medium";
+}
+
+/* ══ USERS ══ */
+function populateUserSelects(){
+  const selects = ["add-assignee","all-assign-filter"];
+  selects.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const isFilter = id.includes("filter");
+    el.innerHTML = isFilter?"<option value=''>Everyone</option>":"";
+    allUsers.forEach(u=>{
+      const o=document.createElement("option");
+      o.value=u.email; o.textContent=u.name;
+      el.appendChild(o);
+    });
+  });
+}
+
+function getUserName(email){
+  const u = allUsers.find(u=>u.email===email);
+  return u?u.name:(email||"—").split("@")[0];
+}
+
+/* ══ SETUP ══ */
+function saveApiUrl(){
+  const url = document.getElementById("setup-api-url").value.trim();
+  API_URL = url;
+  localStorage.setItem("shifa-task-api",url);
+  showToast("API URL saved — reconnect to use live data");
+}
+
+async function testConnection(){
+  if(!API_URL){ showToast("No URL set"); return; }
+  try{
+    const res = await apiCall({action:"login", email:currentUser?.email||"test", secret:currentUser?.secret||"test"});
+    showToast(res.ok?"✓ Connected successfully":"⚠ Got response but login failed — check credentials");
+  }catch(e){ showToast("Connection failed: "+e.message); }
+}
+
+function copyText(txt){
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(()=>showToast("✓ Copied!")).catch(()=>copyFallback(txt));
+  } else { copyFallback(txt); }
+}
+function copyFallback(txt){
+  const ta=document.createElement("textarea");
+  ta.value=txt; ta.style.cssText="position:fixed;opacity:0;top:0;left:0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand("copy"); showToast("✓ Copied!"); }
+  catch(e){ showToast("Copy failed — select text manually"); }
+  document.body.removeChild(ta);
+}
+function copyAppsScript(){ copyText(document.getElementById("apps-script-display").textContent); }
+
+/* ══ HELPERS ══ */
+function switchTab(name,btn){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById("panel-"+name).classList.add("active");
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function filterAndSwitch(tab,type,val){
+  if(type==="status") document.getElementById("all-status-filter").value=val;
+  if(type==="priority") document.getElementById("all-priority-filter").value=val;
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById("panel-"+tab).classList.add("active");
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`.nb[onclick*="'${tab}'"]`).classList.add("active");
+  renderAllTasks();
+}
+
+function statusBadgeClass(s){
+  const m={"Not Started":"badge-not-started","In Progress":"badge-in-progress","Waiting":"badge-waiting","Blocked":"badge-blocked","Review":"badge-review","Completed":"badge-completed","Cancelled":"badge-cancelled"};
+  return m[s]||"badge-not-started";
+}
+
+function priBadgeClass(p){
+  const m={"Low":"pri-low","Medium":"pri-medium","High":"pri-high","Urgent":"pri-urgent"};
+  return m[p]||"pri-medium";
+}
+
+function fmtDate(s){
+  if(!s) return "—";
+  try{ return new Date(s+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }catch(e){ return s; }
+}
+
+function fmtDateTime(s){
+  if(!s) return "—";
+  try{ return new Date(s).toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}); }catch(e){ return s; }
+}
+
+function fmtRelative(s){
+  if(!s) return "—";
+  const d = new Date(s), now = new Date();
+  const diffMs = now-d, diffMin = Math.floor(diffMs/60000);
+  if(diffMin<1) return "just now";
+  if(diffMin<60) return diffMin+"m ago";
+  if(diffMin<1440) return Math.floor(diffMin/60)+"h ago";
+  return Math.floor(diffMin/1440)+"d ago";
+}
+
+function escHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"),2500);
+}
+
+function startClock(){
+  function tick(){
+    const n=new Date();
+    document.getElementById("clock").textContent=n.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("date-lbl").textContent=n.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"});
+  }
+  tick(); setInterval(tick,1000);
+}
+
+function startAutoRefresh(){
+  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(()=>{ if(API_URL) refreshAll(); },30000);
+}
+
+/* ══ INIT ══ */
+document.addEventListener("DOMContentLoaded",()=>{
+  const savedUrl = localStorage.getItem("shifa-task-api");
+  if(savedUrl){ API_URL=savedUrl; document.getElementById("setup-api-url").value=savedUrl; }
+  autoLogin();
+});
+</script>
+</body>
+</html>

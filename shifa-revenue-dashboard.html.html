@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Shifa Medical Group — Executive Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══ DESIGN TOKENS ══ */
+:root{
+  --bg:#060d18;--bg2:#081020;--s:#0d1a2e;--s2:#112038;--s3:#162640;
+  --b:rgba(80,160,220,.12);--b2:rgba(80,160,220,.06);--b3:rgba(80,160,220,.28);
+  --a:#4fa3d4;--a2:#7dc2ec;--a3:#2876a8;--a4:#1a4f72;
+  --g:#c9a84c;--g2:#e8c97a;--g3:#8a6820;
+  --t:#ddeaf8;--t2:#7aa8cc;--t3:#3a6488;
+  --red:#d4756a;--red2:rgba(212,117,106,.15);
+  --green:#6ac47a;--green2:rgba(106,196,122,.15);
+  --ora:#d4a06a;--ora2:rgba(212,160,106,.15);
+  --r:10px;--rl:14px;
+  --crescent:#c9a84c;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:14px;line-height:1.6;display:flex;flex-direction:column}
+body.light{
+  --bg:#f0f5fa;--bg2:#e6eef5;--s:#fff;--s2:#f0f6fb;--s3:#e4eef7;
+  --b:rgba(0,0,0,.09);--b2:rgba(0,0,0,.04);--b3:rgba(0,0,0,.16);
+  --a:#1a6fa0;--a2:#0d4f7a;--a3:#2080b8;--a4:#3090cc;
+  --g:#8a6820;--g2:#6a5010;--g3:#c9a84c;
+  --t:#0a1a2a;--t2:#2a5070;--t3:#5a80a0;
+  --red:#b84040;--red2:rgba(184,64,64,.1);
+  --green:#2a8a40;--green2:rgba(42,138,64,.1);
+  --ora:#9a6020;--ora2:rgba(154,96,32,.1);
+}
+
+/* ══ SETUP OVERLAY ══ */
+#setup-screen{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  transition:opacity .3s;
+}
+#setup-screen.gone{display:none}
+
+.setup-box{
+  background:var(--s);border:.5px solid var(--b3);border-radius:20px;
+  padding:36px 32px;max-width:500px;width:100%;
+  box-shadow:0 40px 80px rgba(0,0,0,.5);
+}
+.setup-logo{text-align:center;margin-bottom:28px}
+.setup-logo .crescent{font-size:40px;display:block;margin-bottom:12px}
+.setup-logo h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--t)}
+.setup-logo h1 span{color:var(--g2)}
+.setup-logo p{font-size:12px;color:var(--t3);margin-top:4px;letter-spacing:.04em}
+.setup-note{
+  background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--t2);line-height:1.7;
+}
+.setup-note strong{color:var(--g2)}
+.setup-field{margin-bottom:14px}
+.setup-field label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:6px}
+.setup-field input{
+  width:100%;background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);
+  padding:10px 13px;color:var(--t);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;
+  transition:border-color .2s;
+}
+.setup-field input:focus{border-color:var(--a)}
+.setup-field input::placeholder{color:var(--t3)}
+.setup-divider{text-align:center;color:var(--t3);font-size:11px;margin:16px 0;letter-spacing:.06em}
+.btn-launch{
+  width:100%;background:linear-gradient(135deg,var(--a3),var(--a));
+  border:none;border-radius:var(--r);padding:13px;
+  color:#fff;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;letter-spacing:.04em;transition:opacity .2s;
+}
+.btn-launch:hover{opacity:.88}
+.btn-demo{
+  width:100%;background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);
+  padding:11px;color:var(--t2);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;
+  cursor:pointer;margin-top:10px;transition:all .2s;
+}
+.btn-demo:hover{border-color:var(--b3);color:var(--t)}
+
+/* ══ HEADER ══ */
+.hdr{
+  display:flex;align-items:center;padding:8px 16px;
+  border-bottom:.5px solid var(--b);flex-shrink:0;gap:10px;
+  background:var(--bg2);min-height:0;
+}
+.hdr-brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-crescent{font-size:18px}
+.hdr-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--t);white-space:nowrap}
+.hdr-title span{color:var(--g2)}
+.hdr-sub{font-size:9px;color:var(--t3);letter-spacing:.05em;text-transform:uppercase;line-height:1.2}
+.hdr-mid{flex:1;text-align:center;overflow:hidden;min-width:0}
+#period-label{font-size:11px;font-weight:600;color:var(--g2);letter-spacing:.02em}
+#sheet-status{font-size:9px;color:var(--t3);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+#clock{font-size:13px;font-weight:500;color:var(--t);font-variant-numeric:tabular-nums}
+#date-lbl{font-size:9px;color:var(--t3);text-align:right}
+.mode-btn{background:none;border:.5px solid var(--b);border-radius:6px;padding:5px 8px;color:var(--t3);font-size:12px;cursor:pointer;transition:all .2s}
+.mode-btn:hover{border-color:var(--b3);color:var(--t)}
+
+/* ══ NAV ══ */
+.nav{display:flex;overflow-x:auto;border-bottom:.5px solid var(--b);flex-shrink:0;background:var(--bg);scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nb{background:none;border:none;color:var(--t3);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;padding:9px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .2s,border-color .2s;letter-spacing:.03em}
+.nb:hover{color:var(--t2)}.nb.active{color:var(--a);border-bottom-color:var(--a)}
+
+/* ══ PANELS ══ */
+.panels{flex:1;overflow:hidden}
+.panel{display:none;height:100%;overflow-y:auto;padding:14px 14px 100px}
+.panel.active{display:block}
+.panel::-webkit-scrollbar{width:2px}.panel::-webkit-scrollbar-thumb{background:var(--b3)}
+
+/* ══ CARDS ══ */
+.card{background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);padding:14px;margin-bottom:10px;transition:border-color .2s}
+.card:hover{border-color:var(--b3)}
+.card-g{border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.02)}
+.card-r{border-color:rgba(212,117,106,.2);background:rgba(212,117,106,.02)}
+.card-b{border-color:rgba(79,163,212,.18);background:rgba(79,163,212,.02)}
+.card-gr{border-color:rgba(106,196,122,.2);background:rgba(106,196,122,.02)}
+
+/* ══ SECTION HEADERS ══ */
+.sh{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;margin:16px 0 8px;display:flex;align-items:center;gap:7px;color:var(--t);letter-spacing:.01em}
+.sh::before{content:'';display:block;width:2.5px;height:13px;background:var(--a);border-radius:2px;flex-shrink:0}
+.sh.gold::before{background:var(--g)}
+.sh.red::before{background:var(--red)}
+.sh.green::before{background:var(--green)}
+.sh.ora::before{background:var(--ora)}
+.lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:5px}
+
+/* ══ KPI HERO ROW ══ */
+.kpi-hero{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;
+}
+.kpi-box{
+  background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);
+  padding:16px 14px;text-align:center;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .15s;cursor:default;
+}
+.kpi-box:hover{border-color:var(--b3);transform:translateY(-1px)}
+.kpi-box::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--kpi-accent,var(--a)),transparent);
+}
+.kpi-box.revenue{--kpi-accent:var(--green)}
+.kpi-box.expense{--kpi-accent:var(--red)}
+.kpi-box.net{--kpi-accent:var(--g)}
+.kpi-icon{font-size:18px;margin-bottom:6px}
+.kpi-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-val.pos{color:var(--green)}
+.kpi-val.neg{color:var(--red)}
+.kpi-val.neu{color:var(--g2)}
+.kpi-lbl{font-size:10px;color:var(--t3);letter-spacing:.05em;text-transform:uppercase}
+.kpi-sub{font-size:11px;color:var(--t2);margin-top:3px}
+
+/* ══ STAT GRID ══ */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.sg2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.sbox{background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);padding:10px 8px;text-align:center;transition:border-color .2s}
+.sbox:hover{border-color:var(--b3)}
+.sv{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;line-height:1.1}
+.sl{font-size:10px;color:var(--t3);margin-top:3px;letter-spacing:.03em}
+
+/* ══ BAR CHART ══ */
+.bar-chart{margin:10px 0}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-label{font-size:11px;color:var(--t2);width:72px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;background:var(--s2);border-radius:3px;height:18px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;padding-left:8px}
+.bar-fill span{font-size:10px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap}
+
+/* ══ PROGRESS RING ══ */
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ring-svg{overflow:visible}
+.ring-bg{fill:none;stroke:var(--s2);stroke-width:6}
+.ring-val{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
+.ring-text-val{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;fill:var(--t);text-anchor:middle;dominant-baseline:middle}
+.ring-text-lbl{font-size:8px;fill:var(--t3);text-anchor:middle;dominant-baseline:middle;letter-spacing:.05em;text-transform:uppercase}
+
+/* ══ RATIO BADGE ══ */
+.ratio-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--s2);border:.5px solid var(--b);border-radius:20px;
+  padding:4px 10px;font-size:11px;font-weight:600;color:var(--t2);
+}
+.ratio-badge.good{background:var(--green2);border-color:rgba(106,196,122,.3);color:var(--green)}
+.ratio-badge.warn{background:var(--ora2);border-color:rgba(212,160,106,.3);color:var(--ora)}
+.ratio-badge.bad{background:var(--red2);border-color:rgba(212,117,106,.3);color:var(--red)}
+
+/* ══ FORMS ══ */
+.field{margin-bottom:10px}
+.field label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:9px 11px;color:var(--t);font-size:13px;font-family:'DM Sans',sans-serif;transition:border-color .2s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--a)}
+textarea{resize:vertical;min-height:70px}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+.input-prefix{position:relative}
+.input-prefix span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}
+.input-prefix input{padding-left:22px}
+
+/* ══ BUTTONS ══ */
+.btn{background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:8px 14px;color:var(--t2);font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.btn:hover{background:var(--s3);border-color:var(--b3);color:var(--t)}
+.btn-a{background:rgba(79,163,212,.14);border-color:rgba(79,163,212,.35);color:var(--a2)}
+.btn-a:hover{background:rgba(79,163,212,.24)}
+.btn-g{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.3);color:var(--g2)}
+.btn-g:hover{background:rgba(201,168,76,.2)}
+.btn-gr{background:rgba(106,196,122,.12);border-color:rgba(106,196,122,.3);color:var(--green)}
+.btn-gr:hover{background:rgba(106,196,122,.2)}
+.btn-r{background:rgba(212,117,106,.12);border-color:rgba(212,117,106,.3);color:#e8a49a}
+.btn-r:hover{background:rgba(212,117,106,.2)}
+.btn-full{width:100%;text-align:center}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ══ PERIOD SELECTOR ══ */
+.period-bar{
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  background:var(--s);border:.5px solid var(--b);border-radius:var(--r);
+  padding:8px 12px;
+}
+.period-bar select{background:var(--s2);border:.5px solid var(--b);border-radius:6px;padding:5px 8px;color:var(--t);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;flex:1}
+.period-bar .plbl{font-size:11px;color:var(--t3);white-space:nowrap}
+.refresh-btn{background:none;border:.5px solid var(--b);border-radius:6px;padding:5px 9px;color:var(--t3);font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.refresh-btn:hover{border-color:var(--a);color:var(--a)}
+
+/* ══ PROBLEM/GOAL CARDS ══ */
+.pg-card{
+  border-radius:var(--rl);padding:16px;margin-bottom:10px;
+  border:.5px solid;position:relative;overflow:hidden;
+}
+.pg-card.problem{border-color:rgba(212,117,106,.3);background:rgba(212,117,106,.04)}
+.pg-card.goal{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.04)}
+.pg-card::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
+}
+.pg-card.problem::before{background:var(--red)}
+.pg-card.goal::before{background:var(--g)}
+.pg-type{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.pg-card.problem .pg-type{color:var(--red)}
+.pg-card.goal .pg-type{color:var(--g2)}
+.pg-text{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--t);line-height:1.5}
+
+/* ══ ENTRY PANEL ══ */
+.entry-header{
+  background:linear-gradient(135deg,var(--s),var(--s2));
+  border:.5px solid var(--b3);border-radius:var(--rl);padding:18px;
+  margin-bottom:14px;text-align:center;
+}
+.entry-header h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--t);margin-bottom:4px}
+.entry-header p{font-size:12px;color:var(--t3)}
+
+/* ══ DIVIDERS ══ */
+.divider{height:.5px;background:var(--b);margin:14px 0}
+
+/* ══ TOAST ══ */
+#toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--s3);border:.5px solid var(--b3);border-radius:20px;
+  padding:8px 18px;font-size:12px;color:var(--t);z-index:9998;
+  opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ SETTINGS PANEL ══ */
+.settings-section{margin-bottom:20px}
+.settings-section h3{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--t);margin-bottom:10px;padding-bottom:6px;border-bottom:.5px solid var(--b)}
+.step-block{
+  background:var(--s);border:.5px solid var(--b);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:8px;
+}
+.step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;background:var(--a3);border-radius:50%;
+  font-size:10px;font-weight:700;color:#fff;margin-right:8px;flex-shrink:0;
+}
+.step-title{font-size:12px;font-weight:600;color:var(--t);display:flex;align-items:center;margin-bottom:6px}
+.step-desc{font-size:11px;color:var(--t2);line-height:1.7;padding-left:28px}
+.step-desc code{
+  background:var(--s2);border:.5px solid var(--b);border-radius:4px;
+  padding:1px 5px;font-family:monospace;font-size:10px;color:var(--a2);
+}
+.copy-btn{background:var(--s2);border:.5px solid var(--b);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--t3);cursor:pointer;transition:all .2s;margin-left:6px}
+.copy-btn:hover{border-color:var(--a);color:var(--a)}
+
+/* ══ TABLE ══ */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:6px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);border-bottom:.5px solid var(--b)}
+td{padding:8px 10px;border-bottom:.5px solid var(--b2);color:var(--t2)}
+tr:hover td{background:var(--b2)}
+td.mono{font-variant-numeric:tabular-nums;font-weight:500;color:var(--t)}
+
+/* ══ INLINE ROW SPLIT ══ */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:480px){
+  .kpi-hero{grid-template-columns:1fr 1fr}
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .row3{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══ -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <div class="setup-logo">
+      <span class="crescent">☪</span>
+      <h1>Shifa <span>Medical Group</span></h1>
+      <p>Dr. Farheen M. Shah-Khan · Executive Dashboard</p>
+    </div>
+
+    <div class="setup-note">
+      <strong>Google Sheets Integration:</strong> Paste your published Google Sheet CSV URL below, or click <em>Demo Mode</em> to explore with sample data. Go to Settings after launch to configure everything.
+    </div>
+
+    <div class="setup-field">
+      <label>Google Sheet CSV URL (optional)</label>
+      <input type="url" id="sheet-url-input" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv">
+    </div>
+
+    <div class="setup-field">
+      <label>Your Name / Role</label>
+      <input type="text" id="user-name-input" placeholder="e.g. Dr. Shah-Khan · CEO">
+    </div>
+
+    <button class="btn-launch" onclick="launchDashboard()">Launch Dashboard →</button>
+    <button class="btn-demo" onclick="launchDemo()">Use Demo Data (no sheet needed)</button>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" style="display:none;flex-direction:column;height:100%">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-brand">
+    <span class="hdr-crescent">☪</span>
+    <div>
+      <div class="hdr-title">Shifa <span>Medical</span></div>
+      <div class="hdr-sub" id="user-role">Executive Dashboard</div>
+    </div>
+  </div>
+  <div class="hdr-mid">
+    <div id="period-label">Loading…</div>
+    <div id="sheet-status">—</div>
+  </div>
+  <div class="hdr-right">
+    <button class="mode-btn" onclick="toggleMode()">☀</button>
+    <div>
+      <div id="clock">—</div>
+      <div id="date-lbl">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nb active" onclick="switchTab('overview',this)">📊 Overview</button>
+  <button class="nb" onclick="switchTab('revenue',this)">💰 Revenue</button>
+  <button class="nb" onclick="switchTab('expenses',this)">📋 Expenses</button>
+  <button class="nb" onclick="switchTab('patients',this)">🏥 Patients</button>
+  <button class="nb" onclick="switchTab('entry',this)">✏️ Data Entry</button>
+  <button class="nb" onclick="switchTab('history',this)">📅 History</button>
+  <button class="nb" onclick="switchTab('settings',this)">⚙️ Settings</button>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+
+<!-- ══ OVERVIEW ══ -->
+<div class="panel active" id="panel-overview">
+  <div class="period-bar">
+    <span class="plbl">Period:</span>
+    <select id="period-select" onchange="loadPeriod()">
+      <option value="latest">Latest Month</option>
+    </select>
+    <button class="refresh-btn" onclick="refreshData()">↻ Refresh</button>
+  </div>
+
+  <div class="kpi-hero">
+    <div class="kpi-box revenue">
+      <div class="kpi-icon">💵</div>
+      <div class="kpi-val pos" id="ov-total-rev">—</div>
+      <div class="kpi-lbl">Total Revenue</div>
+    </div>
+    <div class="kpi-box expense">
+      <div class="kpi-icon">📤</div>
+      <div class="kpi-val neg" id="ov-total-exp">—</div>
+      <div class="kpi-lbl">Total Expenses</div>
+    </div>
+    <div class="kpi-box net">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-val neu" id="ov-net">—</div>
+      <div class="kpi-lbl">Net Profit</div>
+      <div class="kpi-sub" id="ov-margin">—</div>
+    </div>
+  </div>
+
+  <p class="sh">Revenue Streams</p>
+  <div class="card">
+    <div class="bar-chart" id="rev-bars">—</div>
+  </div>
+
+  <div class="row2" style="margin-bottom:10px">
+    <div>
+      <p class="sh green">Patients</p>
+      <div class="card">
+        <div class="sg2" id="pt-mini">
+          <div class="sbox"><div class="sv" id="pm-ccm">—</div><div class="sl">CCM</div></div>
+          <div class="sbox"><div class="sv" id="pm-rpm">—</div><div class="sl">RPM</div></div>
+          <div class="sbox"><div class="sv" id="pm-nh">—</div><div class="sl">NH</div></div>
+          <div class="sbox"><div class="sv" id="pm-dial">—</div><div class="sl">Dialysis</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="sh gold">Expense Split</p>
+      <div class="card">
+        <div class="sg2">
+          <div class="sbox"><div class="sv neg" id="ov-payroll">—</div><div class="sl">Payroll</div></div>
+          <div class="sbox"><div class="sv" id="ov-overhead" style="color:var(--ora)">—</div><div class="sl">Overhead</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-cards"><!-- problem/goal render here --></div>
+</div>
+
+<!-- ══ REVENUE ══ -->
+<div class="panel" id="panel-revenue">
+  <p class="sh">Revenue Breakdown</p>
+  <div class="card card-gr">
+    <div class="sg" id="rev-grid">
+      <div class="sbox"><div class="sv pos" id="r-clinic">—</div><div class="sl">Clinic</div></div>
+      <div class="sbox"><div class="sv pos" id="r-ccm">—</div><div class="sl">CCM</div></div>
+      <div class="sbox"><div class="sv pos" id="r-rpm">—</div><div class="sl">RPM</div></div>
+      <div class="sbox"><div class="sv pos" id="r-rtm">—</div><div class="sl">RTM</div></div>
+      <div class="sbox"><div class="sv pos" id="r-nh">—</div><div class="sl">NH</div></div>
+      <div class="sbox"><div class="sv pos" id="r-dialysis">—</div><div class="sl">Dialysis</div></div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="lbl">Total Revenue</span>
+      <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--green)" id="r-total">—</span>
+    </div>
+  </div>
+
+  <p class="sh green">Revenue Mix</p>
+  <div class="card">
+    <div class="bar-chart" id="rev-bars-detail">—</div>
+  </div>
+
+  <p class="sh gold">Revenue per Patient</p>
+  <div class="card card-g">
+    <div class="sg2">
+      <div class="sbox"><div class="sv" style="color:var(--g2)" id="rpp-ccm">—</div><div class="sl">CCM $/pt</div></div>
+      <div class="sbox"><div class="sv" style="color:var(--g2)" id="rpp-rpm">—</div><div class="sl">RPM $/pt</div></div>
+      <div class="sbox"><div class="sv" style="color:var(--g2)" id="rpp-nh">—</div><div class="sl">NH $/pt</div></div>
+      <div class="sbox"><div class="sv" style="color:var(--g2)" id="rpp-dial">—</div><div class="sl">Dialysis $/pt</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXPENSES ══ -->
+<div class="panel" id="panel-expenses">
+  <p class="sh red">Expense Overview</p>
+  <div class="card card-r">
+    <div class="sg2">
+      <div class="sbox">
+        <div class="sv neg" id="e-payroll">—</div>
+        <div class="sl">Payroll</div>
+      </div>
+      <div class="sbox">
+        <div class="sv" style="color:var(--ora)" id="e-overhead">—</div>
+        <div class="sl">Overhead</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="lbl">Total Expenses</span>
+      <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--red)" id="e-total">—</span>
+    </div>
+  </div>
+
+  <div class="row2" style="margin-bottom:10px">
+    <div>
+      <p class="sh">Expense Ratio</p>
+      <div class="card" style="text-align:center;padding:20px">
+        <div id="expense-ratio-ring">
+          <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+            <circle class="ring-bg" cx="55" cy="55" r="44"/>
+            <circle class="ring-val" id="exp-ring" cx="55" cy="55" r="44" stroke="var(--red)"
+              stroke-dasharray="276.5" stroke-dashoffset="276.5" transform="rotate(-90 55 55)"/>
+            <text class="ring-text-val" x="55" y="50" id="exp-ring-val">—</text>
+            <text class="ring-text-lbl" x="55" y="64">of Revenue</text>
+          </svg>
+        </div>
+        <div id="exp-ratio-badge" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div>
+      <p class="sh gold">Profit Margin</p>
+      <div class="card" style="text-align:center;padding:20px">
+        <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+          <circle class="ring-bg" cx="55" cy="55" r="44"/>
+          <circle class="ring-val" id="profit-ring" cx="55" cy="55" r="44" stroke="var(--g)"
+            stroke-dasharray="276.5" stroke-dashoffset="276.5" transform="rotate(-90 55 55)"/>
+          <text class="ring-text-val" x="55" y="50" id="profit-ring-val">—</text>
+          <text class="ring-text-lbl" x="55" y="64">Margin</text>
+        </svg>
+        <div id="profit-badge" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sh">Payroll vs Overhead Breakdown</p>
+  <div class="card">
+    <div class="bar-chart" id="exp-bars"></div>
+  </div>
+</div>
+
+<!-- ══ PATIENTS ══ -->
+<div class="panel" id="panel-patients">
+  <p class="sh green">Active Patient Census</p>
+  <div class="card card-gr">
+    <div class="sg">
+      <div class="sbox">
+        <div class="sv" style="color:var(--a2)" id="p-ccm">—</div>
+        <div class="sl">CCM</div>
+      </div>
+      <div class="sbox">
+        <div class="sv" style="color:var(--green)" id="p-rpm">—</div>
+        <div class="sl">RPM</div>
+      </div>
+      <div class="sbox">
+        <div class="sv" style="color:var(--g2)" id="p-nh">—</div>
+        <div class="sl">NH</div>
+      </div>
+      <div class="sbox">
+        <div class="sv" style="color:var(--ora)" id="p-dialysis">—</div>
+        <div class="sl">Dialysis</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="lbl">Total Patients (Remote Programs)</span>
+      <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--t)" id="p-total">—</span>
+    </div>
+  </div>
+
+  <p class="sh">Patient Distribution</p>
+  <div class="card">
+    <div class="bar-chart" id="pt-bars"></div>
+  </div>
+
+  <p class="sh gold">Revenue per Patient</p>
+  <div class="card card-g">
+    <div class="bar-chart" id="rpp-bars"></div>
+  </div>
+</div>
+
+<!-- ══ DATA ENTRY ══ -->
+<div class="panel" id="panel-entry">
+  <div class="entry-header">
+    <h2>Billing Team Data Entry</h2>
+    <p>Enter monthly figures here — data is saved locally and can be synced to Google Sheets</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Month / Period</label>
+      <select id="e-month">
+        <option>January 2025</option><option>February 2025</option><option>March 2025</option>
+        <option>April 2025</option><option>May 2025</option><option>June 2025</option>
+        <option>July 2025</option><option>August 2025</option><option>September 2025</option>
+        <option>October 2025</option><option>November 2025</option><option>December 2025</option>
+        <option>January 2026</option><option>February 2026</option><option>March 2026</option>
+        <option>April 2026</option><option selected>May 2026</option><option>June 2026</option>
+        <option>July 2026</option><option>August 2026</option><option>September 2026</option>
+        <option>October 2026</option><option>November 2026</option><option>December 2026</option>
+      </select>
+    </div>
+  </div>
+
+  <p class="sh green">💵 Revenue</p>
+  <div class="card card-gr">
+    <div class="row2">
+      <div class="field">
+        <label>Clinic</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-clinic" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>CCM</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-ccm-rev" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>RPM</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-rpm-rev" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>RTM</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-rtm-rev" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>NH (Nursing Home)</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-nh-rev" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>Dialysis</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-dial-rev" placeholder="0"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:.5px solid var(--b)">
+      <span class="lbl">Calculated Total</span>
+      <span style="font-family:'Playfair Display',serif;font-size:16px;color:var(--green)" id="entry-rev-total">$0</span>
+    </div>
+  </div>
+
+  <p class="sh red">📤 Expenses</p>
+  <div class="card card-r">
+    <div class="row2">
+      <div class="field">
+        <label>Payroll</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-payroll-in" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>Overhead</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="e-overhead-in" placeholder="0"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:.5px solid var(--b)">
+      <span class="lbl">Calculated Total</span>
+      <span style="font-family:'Playfair Display',serif;font-size:16px;color:var(--red)" id="entry-exp-total">$0</span>
+    </div>
+  </div>
+
+  <p class="sh green">🏥 Patients</p>
+  <div class="card">
+    <div class="row2">
+      <div class="field">
+        <label>CCM Patients</label>
+        <input type="number" id="e-ccm-pt" placeholder="0">
+      </div>
+      <div class="field">
+        <label>RPM Patients</label>
+        <input type="number" id="e-rpm-pt" placeholder="0">
+      </div>
+      <div class="field">
+        <label>NH Patients</label>
+        <input type="number" id="e-nh-pt" placeholder="0">
+      </div>
+      <div class="field">
+        <label>Dialysis Patients</label>
+        <input type="number" id="e-dial-pt" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <p class="sh red">⚠️ Biggest Problem</p>
+  <div class="card card-r">
+    <div class="field" style="margin-bottom:0">
+      <textarea id="e-problem" placeholder="Describe the biggest challenge or problem this month…"></textarea>
+    </div>
+  </div>
+
+  <p class="sh gold">🎯 Monthly Goal</p>
+  <div class="card card-g">
+    <div class="field" style="margin-bottom:0">
+      <textarea id="e-goal" placeholder="What is the primary goal or target for this month…"></textarea>
+    </div>
+  </div>
+
+  <div style="margin-top:14px">
+    <button class="btn btn-gr btn-full" style="padding:12px;font-size:13px" onclick="saveEntry()">💾 Save to Dashboard</button>
+    <button class="btn btn-a btn-full" style="padding:10px;font-size:12px;margin-top:8px" onclick="copyForSheets()">📋 Copy Row for Google Sheets</button>
+    <p style="font-size:10px;color:var(--t3);text-align:center;margin-top:8px">Data is saved locally in your browser. Use "Copy Row" to paste into Google Sheets.</p>
+  </div>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div class="panel" id="panel-history">
+  <p class="sh">Monthly History</p>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th><th>Revenue</th><th>Expenses</th><th>Net</th><th>Margin</th><th>Patients</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--t3);padding:20px">No history yet. Start entering data.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="panel" id="panel-settings">
+
+  <div class="settings-section">
+    <h3>🔗 Google Sheets Connection</h3>
+
+    <div class="card">
+      <div class="field">
+        <label>Published CSV URL</label>
+        <input type="url" id="settings-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-a" onclick="saveSheetUrl()">Save & Connect</button>
+        <button class="btn" onclick="testSheet()">Test Connection</button>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-title"><span class="step-num">1</span> Create your Google Sheet with this column structure:</div>
+      <div class="step-desc">
+        Row 1 (headers): <code>Month</code> <code>Clinic</code> <code>CCM_Rev</code> <code>RPM_Rev</code> <code>RTM_Rev</code> <code>NH_Rev</code> <code>Dialysis_Rev</code> <code>Payroll</code> <code>Overhead</code> <code>CCM_Pts</code> <code>RPM_Pts</code> <code>NH_Pts</code> <code>Dialysis_Pts</code> <code>Problem</code> <code>Goal</code>
+        <button class="copy-btn" onclick="copyHeaders()">Copy Headers</button>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-title"><span class="step-num">2</span> Publish to web as CSV</div>
+      <div class="step-desc">
+        In Google Sheets: <strong>File → Share → Publish to web</strong><br>
+        Choose your sheet tab → select <strong>Comma-separated values (.csv)</strong> → click Publish<br>
+        Copy the URL and paste it above.
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-title"><span class="step-num">3</span> Optional: Google Form for billing team</div>
+      <div class="step-desc">
+        Create a Google Form linked to your sheet. Go to your Sheet → <strong>Insert → Form</strong>. Add fields matching the columns above. Share the form link with your billing team — responses will auto-populate the sheet, which the dashboard reads automatically on refresh.
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-title"><span class="step-num">4</span> Auto-refresh (Apps Script)</div>
+      <div class="step-desc">
+        In Google Sheets: <strong>Extensions → Apps Script</strong>. This enables automations. You can also set the dashboard to auto-refresh — change the interval below.
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>⏱ Auto-Refresh</h3>
+    <div class="card">
+      <div class="field">
+        <label>Refresh Interval</label>
+        <select id="refresh-interval" onchange="setRefreshInterval()">
+          <option value="0">Manual only</option>
+          <option value="60">Every 1 minute</option>
+          <option value="300" selected>Every 5 minutes</option>
+          <option value="900">Every 15 minutes</option>
+          <option value="1800">Every 30 minutes</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>🎨 Appearance</h3>
+    <div class="card">
+      <div class="btn-row">
+        <button class="btn" onclick="document.body.classList.remove('light')">🌙 Dark Mode</button>
+        <button class="btn" onclick="document.body.classList.add('light')">☀️ Light Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>📋 Google Form Template</h3>
+    <div class="card">
+      <p style="font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.7">
+        Share this form structure with your billing team. Each submission will add a row to your Google Sheet, which the dashboard reads on refresh.
+      </p>
+      <div style="background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:12px;font-size:11px;color:var(--t2);line-height:2">
+        <strong style="color:var(--t)">Shifa Medical Group — Monthly Data Form</strong><br>
+        1. Month (dropdown)<br>
+        2. Clinic Revenue ($)<br>
+        3. CCM Revenue ($)<br>
+        4. RPM Revenue ($)<br>
+        5. RTM Revenue ($)<br>
+        6. NH Revenue ($)<br>
+        7. Dialysis Revenue ($)<br>
+        8. Payroll ($)<br>
+        9. Overhead ($)<br>
+        10. CCM Patients (#)<br>
+        11. RPM Patients (#)<br>
+        12. NH Patients (#)<br>
+        13. Dialysis Patients (#)<br>
+        14. Biggest Problem (paragraph)<br>
+        15. Goal (paragraph)
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- panels -->
+</div><!-- app -->
+
+<div id="toast"></div>
+
+<script>
+/* ══ STATE ══ */
+let DATA = [];        // parsed sheet rows
+let CURRENT = null;   // currently displayed row
+let sheetUrl = '';
+let refreshTimer = null;
+
+/* ══ DEMO DATA ══ */
+const DEMO_ROWS = [
+  {month:'January 2026',clinic:18200,ccm_rev:14500,rpm_rev:9800,rtm_rev:3200,nh_rev:7100,dialysis_rev:5600,payroll:28000,overhead:8500,ccm_pts:142,rpm_pts:98,nh_pts:34,dialysis_pts:22,problem:'Claim denials up 18% — prior auth delays from Medicaid',goal:'Reduce denial rate to below 10% by end of quarter'},
+  {month:'February 2026',clinic:19800,ccm_rev:15200,rpm_rev:10400,rtm_rev:3600,nh_rev:7400,dialysis_rev:6200,payroll:28000,overhead:9100,ccm_pts:149,rpm_pts:103,nh_pts:36,dialysis_pts:24,problem:'Staffing shortage — 2 billers out on leave',goal:'Onboard 1 additional billing specialist by March 15'},
+  {month:'March 2026',clinic:21400,ccm_rev:16100,rpm_rev:11200,rtm_rev:4000,nh_rev:7800,dialysis_rev:6800,payroll:29500,overhead:9400,ccm_pts:156,rpm_pts:109,nh_pts:38,dialysis_pts:26,problem:'RPM device compliance below target — 68% active',goal:'Reach 80% RPM device compliance; expand NH census by 5 patients'},
+  {month:'April 2026',clinic:22100,ccm_rev:17000,rpm_rev:12100,rtm_rev:4300,nh_rev:8200,dialysis_rev:7100,payroll:29500,overhead:9600,ccm_pts:163,rpm_pts:115,nh_pts:40,dialysis_pts:28,problem:'Overhead costs rising — office lease renewal up 12%',goal:'Negotiate lease or evaluate hybrid remote model for billing team'},
+];
+
+/* ══ LAUNCH ══ */
+function launchDashboard(){
+  const url = document.getElementById('sheet-url-input').value.trim();
+  const name = document.getElementById('user-name-input').value.trim();
+  if(name) localStorage.setItem('shifa-username', name);
+  if(url) {
+    localStorage.setItem('shifa-sheet-url', url);
+    sheetUrl = url;
+  }
+  boot(false);
+}
+
+function launchDemo(){
+  DATA = DEMO_ROWS;
+  boot(true);
+}
+
+function boot(demo){
+  document.getElementById('setup-screen').classList.add('gone');
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  app.style.flexDirection = 'column';
+  app.style.height = '100%';
+
+  const name = localStorage.getItem('shifa-username') || 'Executive View';
+  document.getElementById('user-role').textContent = name;
+
+  if(!demo){
+    sheetUrl = localStorage.getItem('shifa-sheet-url') || '';
+    document.getElementById('settings-sheet-url').value = sheetUrl;
+    loadLocal();
+    if(sheetUrl) fetchSheet();
+  }
+
+  buildPeriodSelect();
+  render();
+  startClock();
+  setRefreshInterval();
+}
+
+/* ══ LOCAL STORAGE ══ */
+function loadLocal(){
+  try{
+    const d = localStorage.getItem('shifa-data');
+    if(d){ const parsed = JSON.parse(d); if(parsed.length) DATA = parsed; }
+  }catch(e){}
+}
+
+function saveLocal(){
+  try{ localStorage.setItem('shifa-data', JSON.stringify(DATA)); }catch(e){}
+}
+
+/* ══ SHEET FETCH ══ */
+async function fetchSheet(){
+  if(!sheetUrl){ return; }
+  document.getElementById('sheet-status').textContent = 'Fetching…';
+  try{
+    const r = await fetch(sheetUrl);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const txt = await r.text();
+    const rows = parseCSV(txt);
+    if(rows.length > 0){
+      DATA = rows;
+      saveLocal();
+      buildPeriodSelect();
+      render();
+      document.getElementById('sheet-status').textContent = '✓ Synced from Sheets · '+new Date().toLocaleTimeString();
+    }
+  }catch(e){
+    document.getElementById('sheet-status').textContent = '⚠ Sheet error: '+e.message;
+  }
+}
+
+function parseCSV(txt){
+  const lines = txt.trim().split('\n');
+  if(lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/ /g,'_'));
+  return lines.slice(1).map(line=>{
+    const vals = line.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj = {};
+    headers.forEach((h,i)=>{ obj[h]=vals[i]||''; });
+    return {
+      month: obj.month || '',
+      clinic: +obj.clinic||0, ccm_rev: +obj.ccm_rev||0, rpm_rev: +obj.rpm_rev||0,
+      rtm_rev: +obj.rtm_rev||0, nh_rev: +obj.nh_rev||0, dialysis_rev: +obj.dialysis_rev||0,
+      payroll: +obj.payroll||0, overhead: +obj.overhead||0,
+      ccm_pts: +obj.ccm_pts||0, rpm_pts: +obj.rpm_pts||0,
+      nh_pts: +obj.nh_pts||0, dialysis_pts: +obj.dialysis_pts||0,
+      problem: obj.problem||'', goal: obj.goal||''
+    };
+  }).filter(r=>r.month);
+}
+
+function refreshData(){
+  if(sheetUrl) fetchSheet();
+  else{ render(); toast('Refreshed'); }
+}
+
+/* ══ PERIOD SELECT ══ */
+function buildPeriodSelect(){
+  const sel = document.getElementById('period-select');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="latest">Latest Month</option>';
+  DATA.forEach((r,i)=>{
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = r.month;
+    sel.appendChild(o);
+  });
+  if(cur && cur !== 'latest') sel.value = cur;
+}
+
+function loadPeriod(){ render(); }
+
+function getCurrentRow(){
+  const sel = document.getElementById('period-select');
+  if(!DATA.length) return null;
+  if(sel.value === 'latest') return DATA[DATA.length-1];
+  return DATA[+sel.value] || DATA[DATA.length-1];
+}
+
+/* ══ MAIN RENDER ══ */
+function render(){
+  const row = getCurrentRow();
+  CURRENT = row;
+  if(!row){
+    document.getElementById('period-label').textContent = 'No data — use Data Entry tab';
+    return;
+  }
+  document.getElementById('period-label').textContent = row.month;
+
+  const totalRev = row.clinic+row.ccm_rev+row.rpm_rev+row.rtm_rev+row.nh_rev+row.dialysis_rev;
+  const totalExp = row.payroll+row.overhead;
+  const net = totalRev - totalExp;
+  const margin = totalRev > 0 ? Math.round(net/totalRev*100) : 0;
+  const expRatio = totalRev > 0 ? Math.round(totalExp/totalRev*100) : 0;
+
+  /* Overview */
+  setText('ov-total-rev', fmt(totalRev));
+  setText('ov-total-exp', fmt(totalExp));
+  const netEl = document.getElementById('ov-net');
+  netEl.textContent = fmt(net);
+  netEl.className = 'kpi-val '+(net>=0?'pos':'neg');
+  setText('ov-margin', margin+'% margin');
+  setText('ov-payroll', fmt(row.payroll));
+  setText('ov-overhead', fmt(row.overhead));
+  setText('pm-ccm', row.ccm_pts);
+  setText('pm-rpm', row.rpm_pts);
+  setText('pm-nh', row.nh_pts);
+  setText('pm-dial', row.dialysis_pts);
+
+  /* Rev bars overview */
+  const revData = [
+    {label:'Clinic', val:row.clinic, color:'var(--green)'},
+    {label:'CCM', val:row.ccm_rev, color:'var(--a)'},
+    {label:'RPM', val:row.rpm_rev, color:'var(--g2)'},
+    {label:'RTM', val:row.rtm_rev, color:'var(--ora)'},
+    {label:'NH', val:row.nh_rev, color:'var(--blue,#6a9fd4)'},
+    {label:'Dialysis', val:row.dialysis_rev, color:'var(--red)'},
+  ];
+  renderBars('rev-bars', revData, totalRev);
+  renderBars('rev-bars-detail', revData, totalRev);
+
+  /* Revenue panel */
+  setText('r-clinic', fmtK(row.clinic));
+  setText('r-ccm', fmtK(row.ccm_rev));
+  setText('r-rpm', fmtK(row.rpm_rev));
+  setText('r-rtm', fmtK(row.rtm_rev));
+  setText('r-nh', fmtK(row.nh_rev));
+  setText('r-dialysis', fmtK(row.dialysis_rev));
+  setText('r-total', fmt(totalRev));
+
+  /* Rev per patient */
+  const rppCcm = row.ccm_pts>0?Math.round(row.ccm_rev/row.ccm_pts):0;
+  const rppRpm = row.rpm_pts>0?Math.round(row.rpm_rev/row.rpm_pts):0;
+  const rppNh = row.nh_pts>0?Math.round(row.nh_rev/row.nh_pts):0;
+  const rppDial = row.dialysis_pts>0?Math.round(row.dialysis_rev/row.dialysis_pts):0;
+  setText('rpp-ccm','$'+rppCcm);
+  setText('rpp-rpm','$'+rppRpm);
+  setText('rpp-nh','$'+rppNh);
+  setText('rpp-dial','$'+rppDial);
+
+  /* Expenses */
+  setText('e-payroll', fmt(row.payroll));
+  setText('e-overhead', fmt(row.overhead));
+  setText('e-total', fmt(totalExp));
+  renderBars('exp-bars',[
+    {label:'Payroll', val:row.payroll, color:'var(--red)'},
+    {label:'Overhead', val:row.overhead, color:'var(--ora)'}
+  ], totalExp);
+
+  /* Rings */
+  setRing('exp-ring', expRatio, 276.5);
+  setText('exp-ring-val', expRatio+'%');
+  setRing('profit-ring', Math.max(0,margin), 276.5);
+  setText('profit-ring-val', margin+'%');
+
+  const erBadge = document.getElementById('exp-ratio-badge');
+  erBadge.innerHTML = `<span class="ratio-badge ${expRatio<60?'good':expRatio<80?'warn':'bad'}">${expRatio<60?'✓ Healthy':expRatio<80?'⚠ Monitor':'⚠ High'}</span>`;
+  const pbBadge = document.getElementById('profit-badge');
+  pbBadge.innerHTML = `<span class="ratio-badge ${margin>25?'good':margin>10?'warn':'bad'}">${margin>25?'✓ Strong':margin>10?'◎ Moderate':'⚠ Low'}</span>`;
+
+  /* Patients */
+  setText('p-ccm', row.ccm_pts);
+  setText('p-rpm', row.rpm_pts);
+  setText('p-nh', row.nh_pts);
+  setText('p-dialysis', row.dialysis_pts);
+  const totalPts = row.ccm_pts+row.rpm_pts+row.nh_pts+row.dialysis_pts;
+  setText('p-total', totalPts);
+
+  renderBars('pt-bars',[
+    {label:'CCM', val:row.ccm_pts, color:'var(--a)'},
+    {label:'RPM', val:row.rpm_pts, color:'var(--green)'},
+    {label:'NH', val:row.nh_pts, color:'var(--g2)'},
+    {label:'Dialysis', val:row.dialysis_pts, color:'var(--ora)'},
+  ], totalPts);
+
+  renderBars('rpp-bars',[
+    {label:'CCM', val:rppCcm, color:'var(--a)'},
+    {label:'RPM', val:rppRpm, color:'var(--green)'},
+    {label:'NH', val:rppNh, color:'var(--g2)'},
+    {label:'Dialysis', val:rppDial, color:'var(--ora)'},
+  ], Math.max(rppCcm,rppRpm,rppNh,rppDial)||1, true);
+
+  /* Problem / Goal */
+  let pgHtml = '';
+  if(row.problem){
+    pgHtml += `<div class="pg-card problem"><div class="pg-type">⚠ Biggest Problem</div><div class="pg-text">${row.problem}</div></div>`;
+  }
+  if(row.goal){
+    pgHtml += `<div class="pg-card goal"><div class="pg-type">🎯 Monthly Goal</div><div class="pg-text">${row.goal}</div></div>`;
+  }
+  document.getElementById('pg-cards').innerHTML = pgHtml;
+
+  /* History */
+  renderHistory();
+}
+
+/* ══ BAR RENDERER ══ */
+function renderBars(id, items, max, isDollar){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(!max) max = 1;
+  el.innerHTML = items.map(item=>{
+    const pct = Math.min(100, Math.round(item.val/max*100));
+    const label = isDollar ? '$'+item.val.toLocaleString() : item.val.toLocaleString();
+    return `<div class="bar-row">
+      <div class="bar-label">${item.label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%;background:${item.color}">
+          <span>${label}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ RING ══ */
+function setRing(id, pct, circ){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const offset = circ - (pct/100)*circ;
+  setTimeout(()=>{ el.style.strokeDashoffset = offset; }, 100);
+}
+
+/* ══ HISTORY ══ */
+function renderHistory(){
+  const tbody = document.getElementById('history-tbody');
+  if(!DATA.length){
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:20px">No history yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = [...DATA].reverse().map(r=>{
+    const rev = r.clinic+r.ccm_rev+r.rpm_rev+r.rtm_rev+r.nh_rev+r.dialysis_rev;
+    const exp = r.payroll+r.overhead;
+    const net = rev-exp;
+    const margin = rev>0?Math.round(net/rev*100):0;
+    const pts = r.ccm_pts+r.rpm_pts+r.nh_pts+r.dialysis_pts;
+    return `<tr>
+      <td>${r.month}</td>
+      <td class="mono" style="color:var(--green)">${fmtK(rev)}</td>
+      <td class="mono" style="color:var(--red)">${fmtK(exp)}</td>
+      <td class="mono ${net>=0?'':''}' style="color:${net>=0?'var(--green)':'var(--red)'}">${fmtK(net)}</td>
+      <td class="mono" style="color:${margin>20?'var(--green)':margin>10?'var(--ora)':'var(--red)'}">${margin}%</td>
+      <td class="mono">${pts}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══ ENTRY ══ */
+['e-clinic','e-ccm-rev','e-rpm-rev','e-rtm-rev','e-nh-rev','e-dial-rev'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input', calcEntryTotals);
+});
+['e-payroll-in','e-overhead-in'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input', calcEntryTotals);
+});
+
+function calcEntryTotals(){
+  const rev = ['e-clinic','e-ccm-rev','e-rpm-rev','e-rtm-rev','e-nh-rev','e-dial-rev']
+    .reduce((s,id)=>s+(+document.getElementById(id)?.value||0),0);
+  const exp = (+document.getElementById('e-payroll-in')?.value||0)+(+document.getElementById('e-overhead-in')?.value||0);
+  setText('entry-rev-total','$'+rev.toLocaleString());
+  setText('entry-exp-total','$'+exp.toLocaleString());
+}
+
+function saveEntry(){
+  const row = buildEntryRow();
+  const idx = DATA.findIndex(r=>r.month===row.month);
+  if(idx>=0) DATA[idx]=row; else DATA.push(row);
+  saveLocal();
+  buildPeriodSelect();
+  render();
+  toast('✓ Saved — '+row.month);
+}
+
+function buildEntryRow(){
+  return {
+    month: document.getElementById('e-month').value,
+    clinic: +document.getElementById('e-clinic').value||0,
+    ccm_rev: +document.getElementById('e-ccm-rev').value||0,
+    rpm_rev: +document.getElementById('e-rpm-rev').value||0,
+    rtm_rev: +document.getElementById('e-rtm-rev').value||0,
+    nh_rev: +document.getElementById('e-nh-rev').value||0,
+    dialysis_rev: +document.getElementById('e-dial-rev').value||0,
+    payroll: +document.getElementById('e-payroll-in').value||0,
+    overhead: +document.getElementById('e-overhead-in').value||0,
+    ccm_pts: +document.getElementById('e-ccm-pt').value||0,
+    rpm_pts: +document.getElementById('e-rpm-pt').value||0,
+    nh_pts: +document.getElementById('e-nh-pt').value||0,
+    dialysis_pts: +document.getElementById('e-dial-pt').value||0,
+    problem: document.getElementById('e-problem').value,
+    goal: document.getElementById('e-goal').value,
+  };
+}
+
+function copyForSheets(){
+  const r = buildEntryRow();
+  const vals = [r.month,r.clinic,r.ccm_rev,r.rpm_rev,r.rtm_rev,r.nh_rev,r.dialysis_rev,r.payroll,r.overhead,r.ccm_pts,r.rpm_pts,r.nh_pts,r.dialysis_pts,r.problem,r.goal];
+  navigator.clipboard?.writeText(vals.join('\t')).then(()=>toast('📋 Copied! Paste into Google Sheets'));
+}
+
+function copyHeaders(){
+  const h = 'Month\tClinic\tCCM_Rev\tRPM_Rev\tRTM_Rev\tNH_Rev\tDialysis_Rev\tPayroll\tOverhead\tCCM_Pts\tRPM_Pts\tNH_Pts\tDialysis_Pts\tProblem\tGoal';
+  navigator.clipboard?.writeText(h).then(()=>toast('Headers copied!'));
+}
+
+/* ══ SETTINGS ══ */
+function saveSheetUrl(){
+  const url = document.getElementById('settings-sheet-url').value.trim();
+  sheetUrl = url;
+  localStorage.setItem('shifa-sheet-url', url);
+  if(url) fetchSheet();
+  toast('Sheet URL saved');
+}
+
+function testSheet(){
+  if(!sheetUrl){ toast('No URL set'); return; }
+  fetchSheet();
+}
+
+function setRefreshInterval(){
+  clearInterval(refreshTimer);
+  const val = +document.getElementById('refresh-interval').value;
+  if(val > 0){
+    refreshTimer = setInterval(()=>{ if(sheetUrl) fetchSheet(); }, val*1000);
+  }
+}
+
+/* ══ UTILS ══ */
+function fmt(n){ return '$'+Math.abs(n).toLocaleString('en-US',{maximumFractionDigits:0}); }
+function fmtK(n){
+  if(Math.abs(n)>=1000) return '$'+(Math.abs(n)/1000).toFixed(1)+'K';
+  return '$'+Math.abs(n);
+}
+function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+
+function switchTab(name, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleMode(){
+  document.body.classList.toggle('light');
+  document.querySelector('.mode-btn').textContent = document.body.classList.contains('light')?'🌙':'☀';
+}
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function startClock(){
+  function tick(){
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    const ampm = h>=12?'PM':'AM';
+    const h12 = h%12||12;
+    document.getElementById('clock').textContent = `${h12}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm}`;
+    document.getElementById('date-lbl').textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* ══ BOOT FROM SAVED DATA ══ */
+window.addEventListener('DOMContentLoaded',()=>{
+  const savedUrl = localStorage.getItem('shifa-sheet-url');
+  const savedName = localStorage.getItem('shifa-username');
+  if(savedUrl) document.getElementById('sheet-url-input').value = savedUrl;
+  if(savedName) document.getElementById('user-name-input').value = savedName;
+});
+</script>
+</body>
+</html>

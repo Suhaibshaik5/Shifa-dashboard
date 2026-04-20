@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Shifa Medical Group — Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060d18;--bg2:#081020;--s:#0d1a2e;--s2:#112038;--s3:#162640;
+  --b:rgba(80,160,220,.12);--b2:rgba(80,160,220,.06);--b3:rgba(80,160,220,.28);
+  --a:#4fa3d4;--a2:#7dc2ec;--a3:#2876a8;
+  --g:#c9a84c;--g2:#e8c97a;--g3:#8a6820;
+  --t:#ddeaf8;--t2:#7aa8cc;--t3:#3a6488;
+  --red:#d4756a;--red2:rgba(212,117,106,.15);
+  --green:#6ac47a;--green2:rgba(106,196,122,.15);
+  --ora:#d4a06a;--ora2:rgba(212,160,106,.15);
+  --purple:#a07ad4;--purple2:rgba(160,122,212,.15);
+  --r:10px;--rl:16px;
+}
+body.light{
+  --bg:#f0f5fa;--bg2:#e6eef5;--s:#fff;--s2:#f0f6fb;--s3:#e4eef7;
+  --b:rgba(0,0,0,.09);--b2:rgba(0,0,0,.04);--b3:rgba(0,0,0,.16);
+  --a:#1a6fa0;--a2:#0d4f7a;--a3:#2080b8;--g:#8a6820;--g2:#6a5010;
+  --t:#0a1a2a;--t2:#2a5070;--t3:#5a80a0;
+  --red:#b84040;--red2:rgba(184,64,64,.1);
+  --green:#2a8a40;--green2:rgba(42,138,64,.1);
+  --ora:#9a6020;--ora2:rgba(154,96,32,.1);
+  --purple:#6030a0;--purple2:rgba(96,48,160,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:14px;line-height:1.6;display:flex;flex-direction:column}
+
+/* ══ LOGIN ══ */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  background-image:radial-gradient(ellipse at 20% 30%, rgba(79,163,212,.07) 0%, transparent 60%),
+                   radial-gradient(ellipse at 80% 70%, rgba(201,168,76,.06) 0%, transparent 60%);
+}
+.login-wrap{width:100%;max-width:420px}
+.login-brand{text-align:center;margin-bottom:32px}
+.login-icon{font-size:44px;margin-bottom:12px;display:block;filter:drop-shadow(0 4px 16px rgba(201,168,76,.4))}
+.login-brand h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--t);line-height:1.2}
+.login-brand h1 span{color:var(--g2)}
+.login-brand p{font-size:12px;color:var(--t3);margin-top:6px;letter-spacing:.04em}
+.login-box{background:var(--s);border:.5px solid var(--b3);border-radius:20px;padding:32px 28px;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.field{margin-bottom:12px}
+.field label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:6px}
+.field input{width:100%;background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:11px 13px;color:var(--t);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--a)}
+.field input::placeholder{color:var(--t3)}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--a3),var(--a));border:none;border-radius:var(--r);padding:13px;color:#fff;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.03em;transition:opacity .2s;margin-top:4px}
+.login-btn:hover{opacity:.88}
+.login-err{font-size:12px;color:var(--red);margin-top:10px;text-align:center;min-height:18px}
+.login-setup{text-align:center;margin-top:16px}
+.login-setup button{background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif}
+.login-setup button:hover{color:var(--a2)}
+/* Setup drawer */
+.setup-drawer{background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);padding:14px;margin-top:12px;display:none}
+.setup-drawer.open{display:block}
+.setup-drawer label{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px}
+.setup-row{display:flex;gap:8px}
+.setup-row input{flex:1;background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:8px 10px;color:var(--t);font-size:12px;font-family:'DM Sans',sans-serif;outline:none}
+.setup-row input:focus{border-color:var(--a)}
+.setup-row button{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:8px 12px;color:var(--t2);font-size:11px;cursor:pointer;white-space:nowrap}
+.setup-row button:hover{border-color:var(--a);color:var(--a)}
+.demo-note{font-size:10px;color:var(--t3);margin-top:8px;text-align:center}
+.demo-note button{background:none;border:none;color:var(--a2);font-size:10px;cursor:pointer;text-decoration:underline}
+
+/* ══ APP ══ */
+#app{display:none;flex-direction:column;height:100%}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;padding:8px 18px;border-bottom:.5px solid var(--b);flex-shrink:0;gap:12px;background:var(--bg2)}
+.hdr-brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-cres{font-size:20px}
+.hdr-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--t);white-space:nowrap}
+.hdr-name span{color:var(--g2)}
+.hdr-sub{font-size:9px;color:var(--t3);letter-spacing:.04em;text-transform:uppercase;line-height:1.2}
+.hdr-mid{flex:1;text-align:center;overflow:hidden;min-width:0}
+.hdr-greeting{font-size:12px;font-weight:600;color:var(--t);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdr-date{font-size:9px;color:var(--t3);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+#clock{font-size:13px;font-weight:500;color:var(--t);font-variant-numeric:tabular-nums}
+.ib{background:none;border:.5px solid var(--b);border-radius:6px;padding:7px 9px;color:var(--t3);font-size:11px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap}
+.ib:hover{border-color:var(--a);color:var(--a)}
+
+/* SCROLLABLE BODY */
+.body-wrap{flex:1;overflow-y:auto;padding:20px 18px 60px}
+.body-wrap::-webkit-scrollbar{width:3px}.body-wrap::-webkit-scrollbar-thumb{background:var(--b3)}
+
+/* WELCOME HERO */
+.welcome-hero{
+  background:linear-gradient(135deg,var(--s),var(--s2));
+  border:.5px solid var(--b3);border-radius:20px;padding:24px 28px;
+  margin-bottom:20px;display:flex;align-items:center;gap:20px;
+  position:relative;overflow:hidden;
+}
+.welcome-hero::before{
+  content:'☪';position:absolute;right:-10px;top:-20px;
+  font-size:120px;opacity:.04;line-height:1;pointer-events:none;
+}
+.wh-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--a3),var(--a));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:#fff;flex-shrink:0;
+  border:2px solid var(--b3);box-shadow:0 4px 20px rgba(79,163,212,.3);
+}
+.wh-text{flex:1;min-width:0}
+.wh-hi{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.wh-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--t);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wh-role{font-size:12px;color:var(--t2);margin-top:3px}
+.wh-right{flex-shrink:0;text-align:right}
+.wh-time{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--t);font-variant-numeric:tabular-nums}
+.wh-tod{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* QUICK STATS STRIP */
+.stats-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat-box{background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);padding:14px 12px;text-align:center;cursor:pointer;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.stat-box:hover{border-color:var(--b3);transform:translateY(-2px)}
+.stat-box::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--sc,var(--a)),transparent)}
+.stat-val{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:9px;color:var(--t3);letter-spacing:.05em;text-transform:uppercase;line-height:1.3}
+.stat-sub{font-size:9px;color:var(--t3);margin-top:3px;opacity:.7}
+
+/* MODULE GRID */
+.section-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--t);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';display:block;width:3px;height:14px;background:var(--a);border-radius:2px;flex-shrink:0}
+.section-title.gold::before{background:var(--g)}
+.mod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+.mod-card{
+  background:var(--s);border:.5px solid var(--b);border-radius:20px;
+  padding:22px 20px;text-decoration:none;color:var(--t);
+  display:flex;flex-direction:column;gap:0;
+  transition:border-color .25s,transform .2s,box-shadow .2s;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.mod-card:hover{border-color:var(--mc,var(--a));transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.mod-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2.5px;
+  background:linear-gradient(90deg,transparent,var(--mc,var(--a)),transparent);
+}
+.mod-card::after{
+  content:var(--micon);position:absolute;right:-12px;bottom:-16px;
+  font-size:80px;opacity:.06;line-height:1;pointer-events:none;
+}
+.mod-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;background:var(--mibg,rgba(79,163,212,.12));border:.5px solid var(--mibd,rgba(79,163,212,.25))}
+.mod-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--t);margin-bottom:6px}
+.mod-desc{font-size:11px;color:var(--t3);line-height:1.7;flex:1}
+.mod-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:12px;border-top:.5px solid var(--b)}
+.mod-stat{font-size:10px;color:var(--t3)}
+.mod-stat strong{color:var(--mc,var(--a))}
+.mod-arrow{font-size:16px;color:var(--mc,var(--a));opacity:.7;transition:transform .2s}
+.mod-card:hover .mod-arrow{transform:translateX(4px);opacity:1}
+
+/* BOTTOM ROW */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+
+/* RECENT ACTIVITY */
+.activity-item{display:flex;gap:10px;padding:10px 0;border-bottom:.5px solid var(--b2);align-items:flex-start;cursor:pointer;transition:background .15s}
+.activity-item:hover{background:var(--b2);margin:0 -14px;padding:10px 14px;border-radius:8px}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.act-body{flex:1;min-width:0}
+.act-title{font-size:12px;color:var(--t);font-weight:500}
+.act-meta{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* QUICK ACTIONS */
+.qa-btn{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:.5px solid var(--b);border-radius:var(--r);
+  padding:10px 14px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--t2);
+  font-size:12px;font-weight:500;margin-bottom:8px;width:100%;
+}
+.qa-btn:hover{border-color:var(--b3);background:var(--s3);color:var(--t)}
+.qa-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.qa-text{flex:1}
+.qa-title{font-weight:600;color:var(--t);font-size:12px}
+.qa-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.qa-arrow{color:var(--t3);font-size:12px}
+
+/* FOOTER */
+.portal-footer{text-align:center;padding:16px 0 0;border-top:.5px solid var(--b);font-size:10px;color:var(--t3);letter-spacing:.04em;margin-top:8px}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s3);border:.5px solid var(--b3);border-radius:20px;padding:8px 18px;font-size:12px;color:var(--t);z-index:9998;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:700px){.stats-strip{grid-template-columns:repeat(3,1fr)}.mod-grid{grid-template-columns:1fr}.bottom-grid{grid-template-columns:1fr}.welcome-hero::before{display:none}}
+@media(max-width:440px){.stats-strip{grid-template-columns:repeat(2,1fr)}.wh-right{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <span class="login-icon">☪</span>
+      <h1>Shifa <span>Medical Group</span></h1>
+      <p>Dr. Farheen M. Shah-Khan · Management Portal</p>
+    </div>
+    <div class="login-box">
+      <div class="field">
+        <label>Email Address</label>
+        <input id="lei" type="email" placeholder="Enter your email" onkeydown="if(event.key==='Enter')document.getElementById('lsi').focus()">
+      </div>
+      <div class="field">
+        <label>Secret Key</label>
+        <input id="lsi" type="password" placeholder="Enter your secret key" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <button class="login-btn" onclick="login()">Sign In to Portal →</button>
+      <div class="login-err" id="lerr"></div>
+    </div>
+
+    <!-- Setup / Demo -->
+    <div class="login-setup">
+      <button onclick="toggleSetup()">⚙ Configure API · Demo Mode</button>
+    </div>
+    <div class="setup-drawer" id="setup-drawer">
+      <label>Google Apps Script URL</label>
+      <div class="setup-row">
+        <input id="apiurl" type="url" placeholder="https://script.google.com/macros/s/…/exec">
+        <button onclick="saveUrl()">Save</button>
+      </div>
+      <div class="demo-note">No API yet? <button onclick="loginDemo()">Enter Demo Mode →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-brand">
+      <span class="hdr-cres">☪</span>
+      <div>
+        <div class="hdr-name">Shifa <span>Medical</span></div>
+        <div class="hdr-sub">Management Portal</div>
+      </div>
+    </div>
+    <div class="hdr-mid">
+      <div class="hdr-greeting" id="hdr-greeting">—</div>
+      <div class="hdr-date" id="hdr-date">—</div>
+    </div>
+    <div class="hdr-right">
+      <div id="clock" style="font-size:13px;font-weight:500;color:var(--t);font-variant-numeric:tabular-nums">—</div>
+      <button class="ib" onclick="document.body.classList.toggle('light')" title="Toggle light/dark">◐</button>
+      <button class="ib" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE BODY -->
+  <div class="body-wrap">
+
+    <!-- WELCOME HERO -->
+    <div class="welcome-hero">
+      <div class="wh-avatar" id="wh-avatar">?</div>
+      <div class="wh-text">
+        <div class="wh-hi" id="wh-time-greeting">Good morning</div>
+        <div class="wh-name" id="wh-name">—</div>
+        <div class="wh-role" id="wh-role">—</div>
+      </div>
+      <div class="wh-right">
+        <div class="wh-time" id="wh-clock">—</div>
+        <div class="wh-tod" id="wh-date">—</div>
+      </div>
+    </div>
+
+    <!-- QUICK STATS STRIP -->
+    <div class="stats-strip">
+      <div class="stat-box" style="--sc:var(--ora)" onclick="goTo('tasks')">
+        <div class="stat-val" style="color:var(--ora)" id="st-tasks">—</div>
+        <div class="stat-lbl">Open Tasks</div>
+        <div class="stat-sub">→ Task Tracker</div>
+      </div>
+      <div class="stat-box" style="--sc:var(--red)" onclick="goTo('leave')">
+        <div class="stat-val" style="color:var(--red)" id="st-pending">—</div>
+        <div class="stat-lbl">Leave Pending</div>
+        <div class="stat-sub">→ Leave Tracker</div>
+      </div>
+      <div class="stat-box" style="--sc:var(--purple)" onclick="goTo('leave')">
+        <div class="stat-val" style="color:var(--purple)" id="st-out">—</div>
+        <div class="stat-lbl">Out Today</div>
+        <div class="stat-sub">→ Leave Tracker</div>
+      </div>
+      <div class="stat-box" style="--sc:var(--green)" onclick="goTo('employees')">
+        <div class="stat-val" style="color:var(--green)" id="st-present">—</div>
+        <div class="stat-lbl">Present Today</div>
+        <div class="stat-sub">→ Employee Tracker</div>
+      </div>
+      <div class="stat-box" style="--sc:var(--g)" onclick="goTo('revenue')">
+        <div class="stat-val" style="color:var(--g2)" id="st-rev">—</div>
+        <div class="stat-lbl">Revenue (Month)</div>
+        <div class="stat-sub">→ Revenue Dashboard</div>
+      </div>
+    </div>
+
+    <!-- MODULE CARDS -->
+    <div class="section-title">Management Modules</div>
+    <div class="mod-grid">
+
+      <div class="mod-card" style="--mc:var(--green);--micon:'💵';--mibg:rgba(106,196,122,.1);--mibd:rgba(106,196,122,.25)" onclick="goTo('revenue')">
+        <div class="mod-icon-wrap">💵</div>
+        <div class="mod-name">Revenue Dashboard</div>
+        <div class="mod-desc">Monthly revenue by program (Clinic, CCM, RPM, RTM, NH, Dialysis), expense tracking, patient census, financial goals, and management notes across all entities.</div>
+        <div class="mod-footer">
+          <div class="mod-stat">Clinic · CCM · RPM · RTM · NH · Dialysis</div>
+          <div class="mod-arrow">→</div>
+        </div>
+      </div>
+
+      <div class="mod-card" style="--mc:var(--a);--micon:'📋';--mibg:rgba(79,163,212,.1);--mibd:rgba(79,163,212,.25)" onclick="goTo('tasks')">
+        <div class="mod-icon-wrap">📋</div>
+        <div class="mod-name">Task Tracker</div>
+        <div class="mod-desc">Assign tasks to team members, track progress from 0–100%, manage status updates (Not Started → In Progress → Review → Done), and view full update history.</div>
+        <div class="mod-footer">
+          <div class="mod-stat">Open: <strong id="mf-tasks">—</strong></div>
+          <div class="mod-arrow">→</div>
+        </div>
+      </div>
+
+      <div class="mod-card" style="--mc:var(--purple);--micon:'🗓';--mibg:rgba(160,122,212,.1);--mibd:rgba(160,122,212,.25)" onclick="goTo('leave')">
+        <div class="mod-icon-wrap">🗓</div>
+        <div class="mod-name">Leave Tracker</div>
+        <div class="mod-desc">Employee leave requests, approvals, PTO balance tracking, calendar view with clickable dates, and a PTO ring chart showing remaining days for all staff.</div>
+        <div class="mod-footer">
+          <div class="mod-stat">Pending: <strong id="mf-leave">—</strong></div>
+          <div class="mod-arrow">→</div>
+        </div>
+      </div>
+
+      <div class="mod-card" style="--mc:var(--ora);--micon:'👥';--mibg:rgba(212,160,106,.1);--mibd:rgba(212,160,106,.25)" onclick="goTo('employees')">
+        <div class="mod-icon-wrap">👥</div>
+        <div class="mod-name">Employee Tracker</div>
+        <div class="mod-desc">Daily attendance logging, who's working on what (real-time task status), employee directory, monthly summaries, and performance notes / commendations.</div>
+        <div class="mod-footer">
+          <div class="mod-stat">Present: <strong id="mf-present">—</strong></div>
+          <div class="mod-arrow">→</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="bottom-grid">
+
+      <!-- RECENT ACTIVITY -->
+      <div>
+        <div class="section-title">Recent Activity</div>
+        <div class="card" style="background:var(--s);border:.5px solid var(--b);border-radius:var(--rl);padding:14px">
+          <div id="activity-feed"><div style="font-size:12px;color:var(--t3)">Loading…</div></div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div>
+        <div class="section-title gold">Quick Actions</div>
+        <div onclick="goTo('tasks')" class="qa-btn">
+          <div class="qa-icon">➕</div>
+          <div class="qa-text"><div class="qa-title">Create New Task</div><div class="qa-sub">Assign to team member with due date</div></div>
+          <div class="qa-arrow">→</div>
+        </div>
+        <div onclick="goTo('leave')" class="qa-btn">
+          <div class="qa-icon">📩</div>
+          <div class="qa-text"><div class="qa-title">Submit Leave Request</div><div class="qa-sub">Request time off for approval</div></div>
+          <div class="qa-arrow">→</div>
+        </div>
+        <div onclick="goTo('employees')" class="qa-btn">
+          <div class="qa-icon">✅</div>
+          <div class="qa-text"><div class="qa-title">Log Today's Attendance</div><div class="qa-sub">Bulk-mark all staff for today</div></div>
+          <div class="qa-arrow">→</div>
+        </div>
+        <div onclick="goTo('leave')" class="qa-btn">
+          <div class="qa-icon">⏳</div>
+          <div class="qa-text"><div class="qa-title">Review Pending Approvals</div><div class="qa-sub" id="qa-pending-count">— leave requests waiting</div></div>
+          <div class="qa-arrow">→</div>
+        </div>
+        <div onclick="goTo('revenue')" class="qa-btn">
+          <div class="qa-icon">📊</div>
+          <div class="qa-text"><div class="qa-title">Enter Financial Data</div><div class="qa-sub">Add revenue or expense entries</div></div>
+          <div class="qa-arrow">→</div>
+        </div>
+        <div onclick="goTo('employees')" class="qa-btn">
+          <div class="qa-icon">⭐</div>
+          <div class="qa-text"><div class="qa-title">Log Performance Note</div><div class="qa-sub">Commend or flag a team member</div></div>
+          <div class="qa-arrow">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="portal-footer">
+      Shifa Medical Group · Internal Management Portal · Confidential<br>
+      Dr. Farheen M. Shah-Khan · All rights reserved
+    </div>
+
+  </div><!-- body-wrap -->
+</div><!-- app -->
+
+<div id="toast"></div>
+
+<script>
+/* ══ CONFIG — edit these to match your deployed filenames ══ */
+const MODULES = {
+  revenue:   'shifa-revenue-dashboard.html',
+  tasks:     'shifa-task-tracker.html',
+  leave:     'shifa-leave-tracker.html',
+  employees: 'shifa-employee-tracker.html',
+};
+
+/* ══ STATE ══ */
+let API_URL = localStorage.getItem('shifa-portal-api') || '';
+let CU = null; // current user
+
+/* ══ LOGIN ══ */
+async function login() {
+  const email  = document.getElementById('lei').value.trim().toLowerCase();
+  const secret = document.getElementById('lsi').value.trim();
+  const errEl  = document.getElementById('lerr');
+  errEl.textContent = '';
+  if (!email || !secret) { errEl.textContent = 'Please enter email and secret key.'; return; }
+
+  if (!API_URL) {
+    // No API — offer demo or setup
+    errEl.textContent = 'No API URL set. Use Demo Mode or configure below.';
+    document.getElementById('setup-drawer').classList.add('open');
+    return;
+  }
+
+  try {
+    errEl.textContent = 'Signing in…';
+    const res = await apiCall({ action: 'login', email, secret });
+    if (!res.ok) { errEl.textContent = res.message || 'Login failed. Check credentials.'; return; }
+    CU = { email, secret, name: res.user.name, role: res.user.role };
+    localStorage.setItem('shifa-portal-user', JSON.stringify(CU));
+    bootPortal();
+    loadPortalData();
+  } catch(e) {
+    errEl.textContent = 'Connection error — check your API URL in the settings below.';
+    document.getElementById('setup-drawer').classList.add('open');
+  }
+}
+
+function loginDemo() {
+  CU = {
+    email: 'dr.shah@shifa.com',
+    secret: 'demo',
+    name: 'Dr. Farheen Shah-Khan',
+    role: 'Admin · CEO'
+  };
+  bootPortal();
+  loadDemoData();
+  toast('Demo mode — data is illustrative only');
+}
+
+async function autoLogin() {
+  const raw = localStorage.getItem('shifa-portal-user');
+  if (!raw) return;
+  const saved = JSON.parse(raw);
+  if (!API_URL) { CU = saved; bootPortal(); loadDemoData(); return; }
+  try {
+    const res = await apiCall({ action: 'login', email: saved.email, secret: saved.secret });
+    if (!res.ok) { localStorage.removeItem('shifa-portal-user'); return; }
+    CU = saved;
+    bootPortal();
+    loadPortalData();
+  } catch(e) {}
+}
+
+function doLogout() {
+  localStorage.removeItem('shifa-portal-user');
+  CU = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('lei').value = '';
+  document.getElementById('lsi').value = '';
+  document.getElementById('lerr').textContent = '';
+}
+
+/* ══ BOOT ══ */
+function bootPortal() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.cssText = 'display:flex;flex-direction:column;height:100%';
+
+  // Fill user info
+  const initials = CU.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  document.getElementById('wh-avatar').textContent = initials;
+  document.getElementById('wh-name').textContent    = CU.name;
+  document.getElementById('wh-role').textContent    = CU.role;
+  document.getElementById('hdr-greeting').textContent = 'Welcome, ' + CU.name.split(' ')[0];
+
+  startClock();
+}
+
+/* ══ API ══ */
+async function apiCall(payload) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+function auth(extra = {}) {
+  return Object.assign({ email: CU.email, secret: CU.secret }, extra);
+}
+
+/* ══ LIVE DATA LOADING ══ */
+async function loadPortalData() {
+  if (!API_URL) return;
+  try {
+    // Fire off parallel requests to each module's stats
+    const [taskRes, leaveRes, empRes, revRes] = await Promise.allSettled([
+      apiCall(auth({ action: 'getTasks' })).catch(() => null),
+      apiCall(auth({ action: 'getStats' })).catch(() => null),
+      apiCall(auth({ action: 'getStats' })).catch(() => null),
+      apiCall(auth({ action: 'getOverviewData' })).catch(() => null),
+    ]);
+
+    // Task stats
+    if (taskRes.value?.ok) {
+      const openTasks = (taskRes.value.tasks || []).filter(t => t.status !== 'Completed' && t.status !== 'Cancelled').length;
+      setV('st-tasks', openTasks);
+      setV('mf-tasks', openTasks);
+    }
+    // Leave stats
+    if (leaveRes.value?.ok) {
+      const s = leaveRes.value.stats || {};
+      setV('st-pending', s.pending || 0);
+      setV('st-out', s.outToday || 0);
+      setV('mf-leave', s.pending || 0);
+      document.getElementById('qa-pending-count').textContent = (s.pending || 0) + ' leave requests waiting';
+    }
+    // Employee stats
+    if (empRes.value?.ok) {
+      const s = empRes.value.stats || {};
+      const present = (s.Present || 0) + (s.Remote || 0);
+      setV('st-present', present);
+      setV('mf-present', present);
+    }
+    // Revenue
+    if (revRes.value?.ok) {
+      const rev = revRes.value.overview?.total_revenue;
+      if (rev) setV('st-rev', '$' + formatK(rev));
+    }
+  } catch(e) {
+    console.error('Portal data error:', e);
+  }
+}
+
+/* ══ DEMO DATA ══ */
+function loadDemoData() {
+  setV('st-tasks',   '7');    setV('mf-tasks',   '7');
+  setV('st-pending', '2');    setV('mf-leave',   '2');
+  setV('st-out',     '1');
+  setV('st-present', '4');    setV('mf-present', '4');
+  setV('st-rev',     '$82K');
+  document.getElementById('qa-pending-count').textContent = '2 leave requests waiting';
+  renderDemoActivity();
+}
+
+/* ══ ACTIVITY FEED ══ */
+function renderDemoActivity() {
+  const items = [
+    { color: 'var(--green)', icon: '✅', title: 'Task completed', sub: 'Sara Ahmed — April Medicare Claims · 2h ago' },
+    { color: 'var(--ora)',   icon: '⏳', title: 'Leave request submitted', sub: 'Omar Malik — Vacation 5 days · 3h ago' },
+    { color: 'var(--red)',   icon: '🚫', title: 'Task blocked', sub: 'Billing — Medicaid claim denials · 4h ago' },
+    { color: 'var(--a2)',    icon: '📊', title: 'Revenue data entered', sub: 'April figures — Clinic + CCM · 1d ago' },
+    { color: 'var(--purple)',icon: '🗓', title: 'Leave approved', sub: 'Sara Ahmed — Personal half day · 1d ago' },
+    { color: 'var(--g2)',    icon: '⭐', title: 'Performance note logged', sub: 'Aisha Khan — Excellent Q1 work · 2d ago' },
+  ];
+  document.getElementById('activity-feed').innerHTML = items.map(it => `
+    <div class="activity-item">
+      <div class="act-dot" style="background:${it.color}"></div>
+      <div class="act-body">
+        <div class="act-title">${it.icon} ${it.title}</div>
+        <div class="act-meta">${it.sub}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ══ NAVIGATE TO MODULE ══ */
+function goTo(module) {
+  const url = MODULES[module];
+  if (!url) { toast('Module not configured'); return; }
+  // Pass credentials via sessionStorage so the module can auto-login
+  if (CU) {
+    sessionStorage.setItem('shifa-sso', JSON.stringify({ email: CU.email, secret: CU.secret, from: 'portal' }));
+  }
+  window.location.href = url;
+}
+
+/* ══ SETUP ══ */
+function toggleSetup() {
+  document.getElementById('setup-drawer').classList.toggle('open');
+}
+function saveUrl() {
+  const url = document.getElementById('apiurl').value.trim();
+  if (!url) { toast('Please enter a URL'); return; }
+  API_URL = url;
+  localStorage.setItem('shifa-portal-api', url);
+  toast('✓ API URL saved');
+}
+
+/* ══ CLOCK ══ */
+function startClock() {
+  function tick() {
+    const now   = new Date();
+    const h     = now.getHours();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const shortDate = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const greeting  = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+
+    setV('clock', timeStr);
+    setV('wh-clock', now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    setV('wh-date', shortDate);
+    setV('hdr-date', dateStr);
+    setV('wh-time-greeting', greeting);
+    document.getElementById('hdr-greeting').textContent = greeting + ', ' + (CU?.name?.split(' ')[0] || '');
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ══ HELPERS ══ */
+function setV(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+function formatK(n) { return Math.abs(n) >= 1000 ? (Math.abs(n) / 1000).toFixed(0) + 'K' : n; }
+
+let _tt;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded', () => {
+  const url = localStorage.getItem('shifa-portal-api');
+  if (url) {
+    API_URL = url;
+    document.getElementById('apiurl').value = url;
+  }
+  autoLogin();
+});
+</script>
+</body>
+</html>
